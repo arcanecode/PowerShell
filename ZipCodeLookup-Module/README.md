@@ -1,0 +1,1 @@
+This folder contains the sample module to lookup Zip Codes. Be sure to read the notes in the ZipCodeLookup.psm1 as you'll need to apply for your own ID with the US Post Office (it's free and easy) to get the sample to work.
