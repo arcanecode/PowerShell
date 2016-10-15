@@ -5,7 +5,7 @@
   Author: Robert C. Cain | @ArcaneCode | arcanecode@gmail.com
           http://arcanecode.com
  
-  This module is Copyright (c) 2015 Robert C. Cain. All rights reserved.
+  This module is Copyright (c) 2016 Robert C. Cain. All rights reserved.
   The code herein is for demonstration purposes. No warranty or guarentee
   is implied or expressly granted. 
  
@@ -23,7 +23,7 @@
 Enum MyTwitters
 {
   ArcaneCode
-  ArcaneLiberty
+  ArcaneMining
   N4IXT
 }
 
@@ -81,7 +81,7 @@ $twit.TwitterHandle
 $twit.Name
 
 # Override default value
-$twit.Name = 'Todd Miranda'
+$twit.Name = 'Mrs. Code'
 $twit.Name
 
 $myTwitter = $twit.TwitterURL()
@@ -127,12 +127,15 @@ Class TwittererRedux
   [string]$Name = 'Robert C. Cain'
 
   # Static Properties
-  static [string] $Version = "2015.08.03.001"
+  static [string] $Version = '2016.10.15.001'
 
   # Function that returns a string
   [string] TwitterURL()
   {
-    $url = "http://twitter.com/$($this.TwitterHandle)"
+    # Call the function to build the twitterurl
+    # passing in the property we want
+    $url = $this.TwitterURL($this.TwitterHandle)
+
     return $url
   }
 
@@ -152,6 +155,8 @@ Class TwittererRedux
   # Can launch a twitter page without instantiating the class
   static [void] OpenTwitterPage([string] $TwitterHandle)
   {
+    # Note here we cannot call the $this.TwitterUrl function
+    # because no object exists (hence no $this)
     $url = "http://twitter.com/$($TwitterHandle)"
     Start-Process $url
   }
@@ -165,7 +170,7 @@ $twitDefault = [TwittererRedux]::new()
 "TwitterHandle = $($twitDefault.TwitterHandle)"
 
 # Now assign and display again
-$twitDefault.TwitterHandle = 'ArcaneLiberty'
+$twitDefault.TwitterHandle = 'ArcaneMining'
 "TwitterHandle = $($twitDefault.TwitterHandle)"
 
 # Show version one of TwitterURL
@@ -181,7 +186,7 @@ $twitAdvanced = [TwittererRedux]::new('N4IXT')
 "TwitterHandle = $($twitAdvanced.TwitterHandle)"
 
 # Create yet another instance using the third constructor
-$twitAdvanced2 = [TwittererRedux]::new('ArcaneLiberty', 'R Cain')
+$twitAdvanced2 = [TwittererRedux]::new('ArcaneMining', 'R Cain')
 $twitAdvanced2.TwitterHandle
 $twitAdvanced2.Name
 

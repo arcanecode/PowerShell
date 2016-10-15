@@ -4,7 +4,7 @@
   Author: Robert C. Cain | @ArcaneCode | arcanecode@gmail.com
           http://arcanecode.com
  
-  This module is Copyright (c) 2014 Robert C. Cain. All rights reserved.
+  This module is Copyright (c) 2016 Robert C. Cain. All rights reserved.
   The code herein is for demonstration purposes. No warranty or guarentee
   is implied or expressly granted. 
  
@@ -35,9 +35,9 @@ function Create-Object ($Schema, $Table, $Comment)
 {
   # Build a hash table with the properties
   $properties = [ordered]@{ Schema = $Schema
-                   Table = $Table
-                   Comment = $Comment
-                 }
+                            Table = $Table
+                            Comment = $Comment
+                          }
 
   # Start by creating an object of type PSObject
   $object = New-Object –TypeName PSObject -Property $properties
@@ -46,14 +46,20 @@ function Create-Object ($Schema, $Table, $Comment)
   return $object
 }
 
-$myObject = Create-Object -Schema "MySchema" -Table "MyTable" -Comment "MyComment"
+$myObject = Create-Object -Schema 'MySchema' -Table 'MyTable' -Comment 'MyComment'
+
+# Display all properties
 $myObject
+
+# Display a single property
+$myObject.Schema
 
 # Display in text. Note because it is an object need to wrap in $() to access a property
 "My Schema = $($myObject.Schema)"
 
-$myObject.Schema = "New Schema"
-$myObject.Comment = "New Comment"
+# Assign Values to the properties
+$myObject.Schema = 'New Schema'
+$myObject.Comment = 'New Comment'
 $myObject
 
 
@@ -85,20 +91,21 @@ function Create-Object ($Schema, $Table, $Comment)
   return $object
 }
 
-$myObject = Create-Object -Schema "MySchema" -Table "MyTable" -Comment "MyComment"
+$myObject = Create-Object -Schema 'MySchema' -Table 'MyTable' -Comment 'MyComment'
 $myObject
 
 # Display in text. Note because it is an object need to wrap in $() to access a property
 "My Schema = $($myObject.Schema)"
 
-$myObject.Schema = "New Schema"
-$myObject.Comment = "New Comment"
+$myObject.Schema = 'New Schema'
+$myObject.Comment = 'New Comment'
 $myObject
 
 
 #-----------------------------------------------------------------------------#
-# Demo 3 -- Add alias for one of the properties
+# Demo 3 -- Add property aliases and script blocks 
 #-----------------------------------------------------------------------------#
+# Demo 3.1 -- Add alias to existing property
 Clear-Host
 Add-Member -InputObject $myObject `
            -MemberType AliasProperty `
@@ -108,7 +115,7 @@ Add-Member -InputObject $myObject `
 "Comment......: $($myObject.Comment)"
 "Description..: $($myObject.Description)"
 
-# Demo 3 -- Add script block to object
+# Demo 3.2 -- Add script block to object
 Clear-Host
 $block = { 
            $fqn = $this.Schema + '.' + $this.Table 
@@ -187,9 +194,11 @@ $myObject.Author
 
 # Unfortunately the original property is still available, and thus
 # the custom get/set can be bypassed
-$myObject.AuthorName = 'Evil Author'
-$myObject.Author                       # Author reflects value of AuthorName
+$myObject.AuthorName = ''
+"Author is '$($myObject.Author)'"       # Author reflects value of AuthorName
 
+# Set author so it isn't blank for future demos
+$myObject.Author = 'ArcaneCode'
 
 #-----------------------------------------------------------------------------#
 # Demo 6 -- Set default properties
@@ -201,13 +210,28 @@ Clear-Host
 # When just running the object, it displays all properties
 $myObject
 
-# If you have a lot, this can get overwhelming. Instead you can define a
-# default set to display.
+# If you have a lot, this can get overwhelming. Some objects have a property
+# object called PSStandardMembers, which has a property called 
+# DefaultDisplayPropertySet. It indicates which properties to display when 
+# you execute the object
+$wmiObject = Get-WmiObject Win32_Service -Filter 'name="wuauserv"'
+$wmiObject                            # Only shows a handful of properties
 
-# Define the property names in an array
+$wmiObject | Format-List *            # Show all properties
+
+# Show the default properties
+$wmiObject.PSStandardMembers.DefaultDisplayPropertySet
+
+# So let's see what our object has
+$myObject.PSStandardMembers.DefaultDisplayPropertySet
+
+# Nothing! So let's define one
+
+# First, define the property names you want to be the defaults in an array
 $defaultProperties = @('Schema', 'Table', 'Comment', 'Author')
 
-# Create a property set object and pass in the array 
+# Next, create a property set object. It's type will be 
+# DefaultDisplayPropertySet. Pass in the array to initialize it.
 $defaultDisplayPropertySet `
   = New-Object System.Management.Automation.PSPropertySet(`
       ‘DefaultDisplayPropertySet’ `
@@ -218,7 +242,8 @@ $defaultDisplayPropertySet `
 $PSStandardMembers `
   = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
 
-# Now add to the object
+# Now add the PSMemberInfo object created in the previous step 
+# to become myObjects new PSStandardMembers object
 $myObject | Add-Member MemberSet PSStandardMembers $PSStandardMembers
 
 # Now the object will just display the default list in standard output
@@ -235,7 +260,7 @@ $myObject | Format-List -Property *
 # Demo 7 - Create a class from .Net Code and call a static method
 #-----------------------------------------------------------------------------#
 
-# Load the contents of the file into a variable
+# Create a variable holding the definition of a class
 $code = @"
 using System;
 
@@ -259,8 +284,8 @@ Add-Type -TypeDefinition $code `
          -Language CSharpVersion3 
 
 # Call the static method of the object
-$mySchema = "dbo"
-$myTable = "ArcaneCode"
+$mySchema = 'dbo'
+$myTable = 'ArcaneCode'
 $result = [Z2HObjectStatic]::composeFullName($mySchema, $myTable)
 $result
 
@@ -297,7 +322,7 @@ Add-Type -TypeDefinition $code `
 $result = New-Object -TypeName Z2HObjectEmbedded
 
 # Set and display the property
-$result.SomeStringName = "Temp"
+$result.SomeStringName = 'Temp'
 $result.SomeStringName
 
 # Call the method
@@ -309,10 +334,13 @@ $result.composeFullName($mySchema, $myTable)
 #-----------------------------------------------------------------------------#
 
 # Set the folder where the CS file is
-$assyPath = "C:\Users\Arcane\OneDrive\PS\Z2H\"
+$assyPath = 'C:\Users\Arcane\OneDrive\PS\Z2H\'
 
 # Path and File Name
 $file = "$($assyPath)Z2H-06 Objects Code.cs"
+
+# Display contents of the file
+psedit $file
 
 # Load the contents of the file into a variable
 $code = Get-Content $file | Out-String
@@ -322,8 +350,8 @@ Add-Type -TypeDefinition $code `
          -Language CSharpVersion3 
 
 # Call the static method of the object
-$mySchema = "dbo"
-$myTable = "ArcaneCode"
+$mySchema = 'dbo'
+$myTable = 'ArcaneCode'
 $result = [Z2HObjectExternal]::composeFullName($mySchema, $myTable)
 $result
 
@@ -340,21 +368,27 @@ $items[0].GetType()
 
 # Define the custom script property
 $script = { 
-            $retValue = "Unknown"
+            $retValue = 'Unknown'
 
-            if($this.Extension -eq '.ps1')
+            switch ($this.Extension)
             {
-              $retValue = 'Script'
-            }
-            else
-            {
-              $retValue = 'Not A Script'
+              '.ps1'  {$retValue = 'Script'}
+              '.psd1' {$retValue = 'Module Definition'}
+              '.psm1' {$retValue = 'Module'}
+              '.xml'  {$retValue = 'XML File'}
+              '.pptx' {$retValue = 'PowerPoint'}
+              '.csv'  {$retValue = 'Comma Separated Values file'}
+              '.json' {$retValue = 'JavaScript Object Notation data'}
+              default {$retValue = 'Sorry dude, no clue.'}
             }
 
             return $retValue
           }
 
+# Create an item count variable
 $itemCount = 0
+
+# Iterate over each DirectoryInfo object in the $items collection
 foreach($item in $items)
 {
   # Add a note property, setting it to the current item counter
@@ -369,6 +403,8 @@ foreach($item in $items)
              -Name 'ScriptType' `
              -Value $script 
 
+  # Now display the already existing Name property along with the
+  # property and method we just added.
   "$($item.ItemNumber): $($item.Name) = $($item.ScriptType())"
 }
 
