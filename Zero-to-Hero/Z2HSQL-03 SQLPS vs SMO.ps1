@@ -23,26 +23,41 @@
     
   # SQLPS wants the instance even if it is default
   $serverInstance = $env:COMPUTERNAME + "\default"  
-  $serverInstance = $env:COMPUTERNAME + "\SQL2014"  # Note the demo box uses a named instance SQL2014
+  # $serverInstance = $env:COMPUTERNAME + "\SQL2014"  
 
   # Grab the start time so we can get some metrics on how long this runs
   $Start = Get-Date
 
+  # Set the number of matches to 0
   $matches = 0
+
+  # Load a list of database objects into a variable
+  # -Force ensures we get the system databases as well
   $dbCollection = (Get-Item SQLSERVER:\sql\$serverInstance\databases -Force).Collection
   
+  # For each database on the server
   foreach($db in $dbCollection)
   {
+    # Create a string to hold the path to the database
     $rootPath = "SQLSERVER:\sql\$serverInstance\databases\$($db.Name)\"
+    # Now create a second string to path to the tables in the database
     $tablePath = "$rootPath\tables"
+    # Load the table objects for the database into a variable
     $tableCollection = (Get-Item $tablePath -Force).Collection
+    # Loop over each table in the current database
     foreach($table in $tableCollection)
     {
+      # Use the object properties to buld the full database.schema.table name
       $tableName = "$($db.Name)\$($table.schema).$($table.name)"
-      $columnPath = "$rootPath\tables\$($table.Schema).$($table.Name)\Columns"      
+      # Create a path to the columns
+      $columnPath = "$rootPath\tables\$($table.Schema).$($table.Name)\Columns"
+      # Now load the column objects into a variable
       $columnCollection = (Get-Item $columnPath).Collection
+      # For each column in the table's column collection
       foreach($column in $columnCollection)
       { 
+        # if that column is a big int, display the name
+        # and increment the counter
         if($column.DataType.ToString() -eq 'bigint' ) 
         {
           "$tableName.$($column) is a BigInt"
@@ -52,17 +67,17 @@
     }
   }
 
-  $End = Get-Date  # Stop the timer
-  "`n"
-  "$matches Matches"
+  $End = Get-Date     # Stop the timer
+  "`n"                # output a line feed to give a blank line
+  "$matches Matches"  # Display number of matches
   
   # The end-start results in a date-time object, which you can get the 
   # various properties of, including total milliseonds or seconds
   $elapsed = $end - $start
   "Elapsed Time $($elapsed.TotalSeconds) Seconds ( $($elapsed.TotalMilliseconds) Milliseconds)"
 
-# 147 Matches
-# Elapsed Time 93.7865923 Seconds ( 93786.5923 Milliseconds)
+# 129 Matches
+# Elapsed Time 245.1249784 Seconds ( 245124.9784 Milliseconds)
 ##
 
 
@@ -73,7 +88,7 @@
    
   # If the instance is the default instance, SMO does NOT want it included
   $serverInstance = $env:COMPUTERNAME # + "\default"  
-  $serverInstance = $env:COMPUTERNAME + "\SQL2012"  # Note the demo box uses a named instance SQL2012
+  # $serverInstance = $env:COMPUTERNAME + "\SQL2012"  
 
   $Start = Get-Date
 
@@ -103,9 +118,7 @@
 
 
   # My test on my system:
-  # 147 Matches
-  # Elapsed Time 17.1440635 Seconds ( 17144.0635 Milliseconds)  
-
-
+  # 129 Matches
+  # Elapsed Time 41.1875094 Seconds ( 41187.5094 Milliseconds)
 
 ###

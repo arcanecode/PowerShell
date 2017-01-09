@@ -130,8 +130,9 @@ Get-Module
 Get-Command -Module SQLPS
 
 <# IMPORTANT!
-  Note that loading the SQLPS module automatically changes the current
-  location to the SQL Provider. Your prompt should now look like:
+  Note that loading the SQLPS module in versions of SQL Server prior to
+  SQL Server 2016 Service Pack 1 automatically changes the current
+  location to the SQL Provider. Your prompt would now look like:
 
   PS SQLSERVER:\
 
@@ -143,6 +144,12 @@ Get-Command -Module SQLPS
   or explicitly include the path
 
   . "C:\PS\RunThisScript.ps1"
+
+  You can also use Push-Location before and Pop-Location after
+  loading the module. Note that if you are on SQL Server 2016 SP1
+  this isn't necessary but won't hurt anything to include, if you 
+  wish to make your script compatible across multiple versions of
+  SQL Server.
 
 #>
 
@@ -165,15 +172,15 @@ Set-Location SQLSERVER:\SQL
 Get-ChildItem
 
 # Move down to the Machine to see the installed instances
-Set-Location SQLSERVER:\SQL\ArcaneCodePro3
+Set-Location SQLSERVER:\SQL\ACSRV
 Get-ChildItem
 
 # Move down to the instance to see server level objects
-Set-Location SQLSERVER:\SQL\ArcaneCodePro3\default
+Set-Location SQLSERVER:\SQL\ACSrv\default
 Get-ChildItem
 
 # Providers are variable friendly
-$machine = "ArcaneCodePro3"
+$machine = "ACSrv"
 $instance = "SQLSERVER:\SQL\$machine\default"
 "The path to the instance is $instance"
 
@@ -202,6 +209,9 @@ Get-ChildItem
 
 # and so on!  
 
+# Reset location back to root of the provider
+Set-Location SQLServer:\
+
 #endregion Provider Tour
 
 #-----------------------------------------------------------------------------#
@@ -212,17 +222,18 @@ Get-ChildItem
 # Backup database ------------------------------------------------------------
 
 # Just for demo purposes, remove any backups from previous runs
+### DO NOT DO THIS IN PRODUCTION!!!!
 $bakPath = "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup"
 Remove-Item "$($bakPath)\*.bak"
 Get-ChildItem -Path $bakPath  # Nothing there! :-)
 
 # Generate the name of the server and instance, in Server\Instance format
 # Note if the instance is DEFAULT you have to omit it
-$serverInstance = "ArcaneCodePro3"
+$serverInstance = "ACSrv"
 
 # Dynamicaly load an array with the list of database names to backup
-$dataBases = Get-ChildItem "SQLSERVER:\SQL\ArcaneCodePro3\default\Databases" |
-               Where-Object Name -Like "*AdventureWorksDW*"
+$dataBases = Get-ChildItem "SQLSERVER:\SQL\ACSrv\default\Databases" |
+               Where-Object Name -Like "*WideWorld*"
 
 $dataBases  # Show the databases it found
 
@@ -248,8 +259,13 @@ Get-ChildItem -Path $bakPath
 
 # Firse we need to get a reference to the server, to access the server
 # methods and properties
-$server = Get-Item "SQLSERVER:\SQL\ArcaneCodePro3\default"
+$server = Get-Item "SQLSERVER:\SQL\ACSrv\default"
 
+# Examine the server object
+$server.GetType() | Format-List
+$server | Get-Member
+
+# Use the ReadErrorLog Method to retrieve log data
 $server.ReadErrorLog()
 
 # Review for backup status
@@ -258,7 +274,7 @@ $server.ReadErrorLog() |
   Format-List
 
 # Create a backup that fails to show the error
-Backup-SqlDatabase -ServerInstance "ArcaneCodePro3" `
+Backup-SqlDatabase -ServerInstance "ACSrv" `
                    -Database "NoSuchDatabaseNameExists" `
                    -BackupAction Database
 
@@ -267,7 +283,7 @@ $server.ReadErrorLog() |
   Where-Object ProcessInfo -eq "Backup" |
   Format-List
 
-# Filter for only backup failures
+# Filter for only backup failures (Note text compare is case insensitive)
 $backupFailures = $server.ReadErrorLog() |
   Where-Object {$_.ProcessInfo -eq "Backup" -and `
                                $_.Text -like 'Backup failed*' -and `
@@ -295,7 +311,7 @@ $server.ReadErrorLog() |
   Where more detailed explanations of querying SQL Agent Jobs can be found
 #>
 
-$serverInstance = "ArcaneCodePro3\default"
+$serverInstance = "ACSrv\default"
 $jobPath = "SQLSERVER:\SQL\$serverInstance\jobserver\jobs\"
 Set-Location $jobPath
 $SQLjob = Get-ChildItem
@@ -428,7 +444,7 @@ Get-ChildItem $dbloc\Tables
   If you were calling a specific instance, perhaps you have one called 
   SQL2014, the text would look like
 
-  Invoke-Sqlcmd -Query $dbcmd -ServerInstance "ArcaneCodePro3\SQL2014"
+  Invoke-Sqlcmd -Query $dbcmd -ServerInstance "ACSrv\SQL2014"
 
 #>
 
@@ -516,8 +532,9 @@ $dbcmd = @"
     (SqlSaturdayID, Organizer, Location, EventDate, Attendees)
   VALUES
     (441, 'Arcane Code', 'Orange City, FL', '2015/06/16', 141)
-  , (532, 'Bradley Ball', 'Jacksonville, FL', '2015/06/09', 132)
-  , (650, 'Jason Strate', 'Baton Rouge, LA', '2015/08/04', 150)
+  , (532, 'Aaron Nelson', 'Atlanta, GA', '2015/06/09', 132)
+  , (555, 'Chrissy LeMaire', 'Paris, France', '2015/07/17', 182)
+  , (650, 'Brent Ozar', 'Chicago, IL', '2015/08/04', 150)
   , (751, 'Adam Curry', 'Austin, TX', '2015/09/29', 151)
   , (844, 'John C. Dvorak', 'San Francisco, CA', '2015/10/13', 144)
 "@
@@ -541,7 +558,7 @@ $myOutput | Format-Table -AutoSize
 
 # Getting to certain rows
 $myOutput.Count   # How many rows we have
-$myOutput[5].Location   # Remember arrays are 0 based!
+$myOutput[6].Location   # Remember arrays are 0 based!
 
 # Iterating over the collection of rows
 foreach($row in $myOutput)
@@ -578,7 +595,8 @@ $dbcmd = @"
 Invoke-Sqlcmd -Query $dbcmd `
               -ServerInstance $env:COMPUTERNAME `
               -SuppressProviderContextWarning `
-
+ 
+# After that runs check to make sure it's gone
 Get-ChildItem SQLSERVER:\sql\$env:COMPUTERNAME\default\databases |
   Select-Object -Property Name, Status, RecoveryModel, Owner |
   Format-Table -Autosize

@@ -119,7 +119,7 @@ $bkup.Action = [Microsoft.SqlServer.Management.Smo.BackupActionType]::Database
 $bkup.SqlBackup($server)
 
 # Validate it is there
-Get-ChildItem -Path $bakPath  # Nothing there! :-)
+Get-ChildItem -Path $bakPath  
 
 # Clean up after ourselves
 Remove-Item "$($bakPath)\*.bak"
@@ -141,7 +141,7 @@ $server.ReadErrorLog() |
   Format-List
 
 # Create a backup that fails to show the error
-Backup-SqlDatabase -ServerInstance "ArcaneCodePro3" `
+Backup-SqlDatabase -ServerInstance "ACSrv" `
                    -Database "NoSuchDatabaseNameExists" `
                    -BackupAction Database
 
@@ -181,18 +181,23 @@ $server = New-Object Microsoft.SqlServer.Management.Smo.Server("$machine")
 
 $agent = $server.JobServer
 
-$jobs = @()
+$jobs = @()   # Create an empty array
+
 foreach($job in $agent.Jobs)
 {
+  # Create a custom PS Object and copy over the properties we
+  # want from the job into our new object
   $aJob = [PSCustomObject]@{
           Parent = $job.Parent
           Name = $job.name
           LastRunDate = $job.lastRunDate
           LastRunOutcome = $job.lastRunOutcome 
           }
+  # Add the new object to our @jobs array
   $jobs += $aJob
 }
 
+# Display the conents of our jobs
 $jobs | Format-Table -AutoSize
 
 #endregion DBA Tasks
@@ -208,32 +213,46 @@ $jobs | Format-Table -AutoSize
 $machine = $env:COMPUTERNAME #+ "\default"  
 
 # Create a database the simple way -------------------------------------------
+# Get a reference to the server
 $server = New-Object Microsoft.SqlServer.Management.Smo.Server("$machine")
+
+# Create a new database object in memory
 $db = New-Object Microsoft.SqlServer.Management.Smo.Database($server, "PSTest2")
+
+# Take the database object in memory and write it out to SQL Server
 $db.Create()   
 
 # ...or the more complete way ------------------------------------------------
+# Get a reference to the server
 $server = New-Object Microsoft.SqlServer.Management.Smo.Server("$machine")
-$db = New-Object Microsoft.SqlServer.Management.Smo.Database($server, "PSTest2") 
 
+# Create a new database object in memory
+$db = New-Object Microsoft.SqlServer.Management.Smo.Database($server, "PSTest3")
+
+# Create a file group object, and add it to the in memory database object
 $fg = New-Object Microsoft.SqlServer.Management.Smo.FileGroup ($db, 'PRIMARY')
 $db.Filegroups.Add($fg)
 
-$mdf = New-Object Microsoft.SqlServer.Management.Smo.DataFile($fg, "PSTest2_Data")                                        
+# Create the data file object for the MDF file, add it to the file group for
+# the in memory database object
+$mdf = New-Object Microsoft.SqlServer.Management.Smo.DataFile($fg, "PSTest3_Data")                                        
 $fg.Files.Add($mdf)   
-$mdf.FileName = "C:\SQLdata\PSTest2_Data.mdf" 
+$mdf.FileName = "C:\SQLdata\PSTest3_Data.mdf" 
 $mdf.Size = 30.0 * 1KB    
 $mdf.GrowthType = "Percent"  
 $mdf.Growth = 10.0       
 $mdf.IsPrimaryFile = "True" 
 
-$ldf = New-Object Microsoft.SqlServer.Management.Smo.LogFile($db, "PSTest2_Log")
+# Create the log file object for the MDF file, add it to the file group for
+# the in memory database object
+$ldf = New-Object Microsoft.SqlServer.Management.Smo.LogFile($db, "PSTest3_Log")
 $db.LogFiles.Add($ldf)  
-$ldf.FileName = "C:\SQLlog\PSTest2_Log.ldf"   
+$ldf.FileName = "C:\SQLlog\PSTest3_Log.ldf"   
 $ldf.Size = 20.0 * 1KB    
 $ldf.GrowthType = "Percent"  
 $ldf.Growth = 10.0   
 
+# Finally, take the database object in memory and write it out to SQL Server
 $db.Create()    
 
 # Prove it exists
@@ -264,6 +283,8 @@ $dbcmd = @"
 
 $sql.Add($dbcmd)     
 
+# ExecuteNonQuery tells SQL to run the SQL but nothing will be returned
+# This is similar to Invoke-SqlCmd
 $db.ExecuteNonQuery($sql)
 
 # Show its there by showing the tables collection for the database object
@@ -271,10 +292,14 @@ $db.Tables
 
 
 # Add a table with pure SMO --------------------------------------------------
+# Get references to the server and database into variables
 $server = New-Object Microsoft.SqlServer.Management.Smo.Server("$machine")
 $db = $server.Databases["PSTest2"]
+
+# Create a new object in memory to hold our table
 $table = New-Object Microsoft.SqlServer.Management.Smo.Table($db, "SqlSaturday")
 
+# Create a column object for the first column
 $col1 = New-Object Microsoft.SqlServer.Management.Smo.Column ($table, "SqlSaturdayID")   
 $col1.DataType = [Microsoft.SqlServer.Management.Smo.Datatype]::Int
 $col1.Nullable = $false
@@ -283,8 +308,10 @@ $col1.Nullable = $false
 # $col1.Identity = $true
 # $col1.IdentitySeed = 1
 # $col1.IdentityIncrement = 1
+# Now add this column object to the in memory table object
 $table.Columns.Add($col1) 
 
+# Repeat for each column
 # Organizer
 $col2 = New-Object Microsoft.SqlServer.Management.Smo.Column ($table, "Organizer")
 $col2.DataType = [Microsoft.SqlServer.Management.Smo.Datatype]::NVarChar(100)
@@ -309,6 +336,7 @@ $col5.DataType = [Microsoft.SqlServer.Management.Smo.Datatype]::Int
 $col5.Nullable = $false
 $table.Columns.Add($col5) 
 
+# Now take the table object that is in memory write it to the SQL Server
 $table.Create()   
 
 # Show its there by showing the tables collection for the database object
@@ -368,9 +396,10 @@ $dbcmd = @"
   VALUES
     (328, 'John Baldwin', 'Birmingham, AL', '2014/08/14', 150)
   , (999, 'Robert C. Cain', 'The Moon', '2014/08/30', 150)
-  , (441, 'Brian Knight', 'Orange City, FL', '2015/06/16', 141)
-  , (532, 'Mike Davis', 'Jacksonville, FL', '2015/06/09', 132)
-  , (650, 'Adam Jorgensen', 'Baton Rouge, LA', '2015/08/04', 150)
+  , (441, 'Arcane Code', 'Orange City, FL', '2015/06/16', 141)
+  , (532, 'Aaron Nelson', 'Atlanta, GA', '2015/06/09', 132)
+  , (555, 'Chrissy LeMaire', 'Paris, France', '2015/07/17', 182)
+  , (650, 'Brent Ozar', 'Chicago, IL', '2015/08/04', 150)
   , (751, 'Adam Curry', 'Austin, TX', '2015/09/29', 151)
   , (844, 'John C. Dvorak', 'San Francisco, CA', '2015/10/13', 144)
 "@
@@ -389,13 +418,17 @@ $dbcmd = @"
    ORDER BY Attendees DESC
 "@
 
-# Returns a System.Data.DataSet
+# Returns a collection (array) of System.Data.DataSet objects
 $data = $db.ExecuteWithResults($dbcmd)    
+$data # Display the results
 
 # Datasets can contain 1 or more DataTable objects in
-# their Tables collection. 
-# In this case we only have 1, so we can just grab it
-# using the numerical array access technique
+# their Tables collection. Think of a Dataset as a special type of array,
+# with extra properties for working with data
+
+# In this case we only have 1 dataset, so we can just grab it
+# using the numerical array access technique. The data set would be 
+# similar to the array of data row objects we saw in the SQL Provider
 $dt = New-Object "System.Data.DataTable"  
 $dt = $data.Tables[0]
 
@@ -435,10 +468,14 @@ $data = $db.ExecuteWithResults($dbcmd)
 $data.Tables[0] | Format-Table -Autosize   
 
 
-# Drop the database ----------------------------------------------------------
+# Drop the databases ---------------------------------------------------------
+# DON'T DO THIS IN PRODUCTION UNLESS YOU REALLY REALLY REALLY MEAN IT!!!!!!!!!
 $Server = New-Object Microsoft.SqlServer.Management.Smo.Server("$machine")
 $Server.KillAllProcesses("PSTest2")
 $Server.KillDatabase("PSTest2")
+
+$Server.KillAllProcesses("PSTest3")
+$Server.KillDatabase("PSTest3")
 
 # Show it went bye-bye
 $Server.Databases |
