@@ -23,7 +23,7 @@
 Enum MyTwitters
 {
   ArcaneCode
-  ArcaneMining
+  ArcaneTC
   N4IXT
 }
 

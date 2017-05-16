@@ -14,6 +14,7 @@
 
 # Comments begin with a # (aka hashtag or pound sign)
 
+cd C:\Users\Arcane\OneDrive\PS\Z2H
 dir # same as ls
 
 <#
@@ -291,9 +292,9 @@ $hash = @{"Key"         = "Value";
           "Arcane Code" = "arcanecode.com"}
           
 $hash                  # Display all values
-$hash["PowerShell"]    # Get a single value from the key
+$hash['PowerShell']    # Get a single value from the key
 
-$hash."Arcane Code"    # Get single value using object syntax
+$hash.'Arcane Code'    # Get single value using object syntax
 
 #-----------------------------------------------------------------------------#
 # Logic Branching
