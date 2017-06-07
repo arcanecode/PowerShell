@@ -1,1 +1,3 @@
-﻿Invoke-Pester 'C:\PS\Pester-course\demo\completed-final-module\PesterIntroTest.ps1'
+﻿$demoPath = "$($env:OneDrive)\PS\Pester-Course\demo\"
+
+Invoke-Pester "$($demoPath)completed-final-module\PesterIntroTest.ps1"
