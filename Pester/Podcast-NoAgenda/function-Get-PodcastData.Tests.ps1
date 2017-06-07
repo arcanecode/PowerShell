@@ -56,7 +56,7 @@ Describe 'Get-PodcastData Tests' {
   {
     $rowNum++
     Context "Podcast Values for row $rowNum" {
-    
+      
       It 'ImageUrl should end with .jpg or .png' {
         $($podcast.ImageUrl.EndsWith('.jpg')) -or `
           $($podcast.ImageUrl.EndsWith('.png')) |

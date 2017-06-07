@@ -44,9 +44,11 @@ mock the return values from our Get-PodcastData cmdlet.
 #>
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Global:buzzkill = 'jcd'
+
 Get-Module Podcast-NoAgenda | Remove-Module -Force
 Import-Module $here\Podcast-NoAgenda.psm1 -Force
+
+$Global:buzzkill = 'jcd'
 
 "Write-Host `$here = $here"
 "Write-Host `$buzzkill = $buzzkill"
@@ -402,11 +404,11 @@ Describe 'Get-PodcastImage Acceptance Tests' -Tags 'Acceptance' {
        Get-PodcastImage. The value is used for the folder to test in
     ---------------------------------------------------------------------------------------------------#>
 
-    $root = 'C:\PS\Pester-course\demo\completed-final-module\'
-    $tests = @{ 'default parameter' = "$($root)Podcast-Data\";
-                'default pipeline'  = "$($root)Podcast-Data\";
-                'nondefault parameter' = "$($root)Podcast-Test\";
-                'nondefault pipeline'  = "$($root)Podcast-Test\";
+    $root = 'C:\Users\Arcane\OneDrive\PS\Pester-course\demo\completed-final-module\'
+    $tests = @{ 'default parameter' = "$($root)Podcast-Data\"
+                'default pipeline'  = "$($root)Podcast-Data\"
+                'nondefault parameter' = "$($root)Podcast-Test\"
+                'nondefault pipeline'  = "$($root)Podcast-Test\"
               }
 
     # Note to iterate over a hash table, you have to use GetEnumerator to pop off each individual entry 

@@ -18,6 +18,8 @@ Pop-Location
 . $PSScriptRoot\function-Get-PodcastData.ps1
 . $PSScriptRoot\function-Get-PodcastMedia.ps1
 . $PSScriptRoot\function-Get-PodcastImage.ps1
+. $PSScriptRoot\function-Format-PodcastHtml.ps1
+. $PSScriptRoot\function-Format-PodcastXml.ps1
 . $PSScriptRoot\function-ConvertTo-PodcastHtml.ps1
 . $PSScriptRoot\function-ConvertTo-PodcastXml.ps1
 . $PSScriptRoot\function-Write-PodcastHtml.ps1

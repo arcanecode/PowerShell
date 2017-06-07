@@ -97,7 +97,7 @@ Describe 'Write-PodcastXML Acceptance Tests' -Tags 'Acceptance' {
 
     # Unfortunately, to be able to test the default OutputPathFolder from the
     # function, we have to hard code it here    
-    $defaultOutputPathFolder = 'C:\PS\Pester-course\demo\completed-final-module\Podcast-Data\'
+    $defaultOutputPathFolder = 'C:\Users\Arcane\OneDrive\PS\Pester-course\demo\completed-final-module\Podcast-Data\'
 
     # Remove the default if it was out there from a previous run
     # (use SilentlyContinue to suppress any errors if it doesn't already exit)

@@ -48,13 +48,13 @@ function Format-PodcastXML()
   param
   (
     [parameter (Mandatory = $true) ]
-    $PodcastData
+    $rssData
   )
 
   Write-Verbose 'Format-PodcastXML: Starting'
 
   $xmlOutput = "<Shows>`r`n"
-  foreach($podcast in $PodcastData)
+  foreach($podcast in $rssData)
   {
     $imgUrl = $podcast.ImageUrl
     $imageFileName = $imgUrl.Split('/')[-1]

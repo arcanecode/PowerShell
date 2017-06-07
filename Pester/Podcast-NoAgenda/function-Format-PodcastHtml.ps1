@@ -35,7 +35,7 @@ function Format-PodcastHtml()
   param
   (
     [parameter (Mandatory = $true) ]
-    $PodcastData
+    $rssData
   )
 
   Write-Verbose 'Get-PodcastHtml: Beginning'
@@ -62,7 +62,7 @@ function Format-PodcastHtml()
 
   $bodyData = ''
 
-  foreach ($podcast in $PodcastData)
+  foreach ($podcast in $rssData)
   {
     Write-Verbose "Get-PodcastHtml: Processing Podcast $($podcast.Title)"
     $imgUrl = $podcast.ImageUrl

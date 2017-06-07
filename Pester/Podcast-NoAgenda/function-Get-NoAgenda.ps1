@@ -45,7 +45,7 @@ function Get-NoAgenda()
   param
   (
     [parameter (Mandatory = $false) ]
-    [string] $OutputPathFolder = 'C:\PS\Pester-course\demo\completed-final-module\Podcast-Data\'
+    [string] $OutputPathFolder = 'C:\Users\Arcane\OneDrive\PS\Pester-course\demo\completed-final-module\Podcast-Data\'
     ,
     [parameter (Mandatory = $false) ]
     [string] $XmlFileName = 'NoAgenda.xml'

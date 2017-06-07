@@ -166,7 +166,7 @@ Describe 'Write-PodcastHtml Acceptance Tests' -Tags 'Acceptance' {
 
     # Unfortunately, to be able to test the default OutputPathFolder from the
     # function, we have to hard code it here    
-    $defaultOutputPathFolder = 'C:\PS\Pester-course\demo\completed-final-module\Podcast-Data\'
+    $defaultOutputPathFolder = 'C:\Users\Arcane\OneDrive\PS\Pester-course\demo\completed-final-module\Podcast-Data\'
     
     # Put default path file in a variable for clarity
     $defaultHtmlPathFile = "$($defaultOutputPathFolder)$('NoAgenda.html')"

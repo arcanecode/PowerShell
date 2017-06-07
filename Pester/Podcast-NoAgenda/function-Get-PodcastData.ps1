@@ -57,13 +57,25 @@ function Get-PodcastData()
   $rssData = @()
   foreach($rss in $webData)
   {
+    # Hosts needs extra cleanup. Originally it came in the feed as a
+    # string, now it seems to be coming in as an array
+    if ($rss.author.GetType() -eq 'string')
+    {
+      $hosts = $rss.author
+    }
+    else
+    {
+      $hosts = $rss.author[0]
+    }
+    $hosts = $hosts.Replace('&', 'and') # & messes up XML
+
     $rssData += [PSCustomObject][Ordered]@{
       # Note the & will mess up the XML, so we'll replace it
       PSTypeName = 'PodcastSight.Podcast'
       Title = $rss.title.Replace('&', 'and')
       ShowUrl = $rss.link
       EmbeddedHTML = $rss.summary
-      Hosts = $rss.author.Replace('&', 'and') 
+      Hosts = $hosts
       PublicationDate = $rss.pubDate
       ImageUrl = $rss.image.href
       AudioUrl = $rss.enclosure.url

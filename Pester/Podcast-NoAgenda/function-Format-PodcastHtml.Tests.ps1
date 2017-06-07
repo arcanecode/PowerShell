@@ -229,7 +229,7 @@ Describe 'Format-PodcastHtml Tests' -Tags @('Unit', 'Acceptance') {
   
     $rssData = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockRssData)
 
-    $htmlData = Format-PodcastHtml -PodcastData $rssData 
+    $htmlData = Format-PodcastHtml -rssData $rssData 
 
     It 'Contains a title of No Agenda Episode 800 - "Toilet Wars"</p>' {
       $lookFor = 'No Agenda Episode 800 - "Toilet Wars"</p>'

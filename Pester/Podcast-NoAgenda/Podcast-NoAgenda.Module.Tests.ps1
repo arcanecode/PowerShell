@@ -27,7 +27,7 @@ Describe -Tags ('Unit', 'Acceptance') "$module Module Tests"  {
       "$here\$module.psd1" | Should Contain "$module.psm1"
     }
     
-    It '$module folder has functions' {
+    It "$module folder has functions" {
       "$here\function-*.ps1" | Should Exist
     }
 
@@ -49,8 +49,7 @@ Describe -Tags ('Unit', 'Acceptance') "$module Module Tests"  {
                 'ConvertTo-PodcastHtml',
                 'ConvertTo-PodcastXML',
                 'Write-PodcastHtml', 
-                'Write-PodcastXML',
-                'Doesnt-Exist'
+                'Write-PodcastXML'
                )
 
   foreach ($function in $functions)
@@ -102,7 +101,7 @@ Describe -Tags ('Unit', 'Acceptance') "$module Module Tests"  {
 
     Context "$function has tests" {
       It "function-$($function).Tests.ps1 should exist" {
-        "function-$($function).Tests.ps1" | Should Exist
+        "$here\function-$($function).Tests.ps1" | Should Exist
       }
     }
   
