@@ -22,16 +22,8 @@ Thus I added a try/catch error handler, which displays an error message and cont
 
 At this point I thought I was done. Just I was about to call it finished though, a typical afternoon Alabama thunderstorm came up. Kaboom! House rattled and power blinked. 
 
-This presented my final issue, what if the power went out? I’d want to know where it got to with the downloads. So I added some further code such that when the script starts it creates a new log file and appends each message to it. 
+This presented my final concern, what if the power went out? I’d want to know where it got to with the downloads. So I added some further code such that when the downloading starts it creates a new log file and appends each message to it. 
 
-I realize some of you have superfast gigabit internet and will be able to download these almost instantly. (I hate you by the way. #jealous). So I made logging optional, so it wouldn’t create an extra file if you didn’t want it. Just set the $log variable to $false, and it will skip logging. 
+I realize some of you have superfast gigabit internet and will be able to download these almost instantly. (I hate you by the way. #jealous). Therefore I made logging optional, so it wouldn’t create an extra file if you didn’t want it. Just set the $log variable to $false, and it will skip logging. 
 
 So there you go, a revised download script that will handle stopping and restarting the script gracefully, will look for errors, and adds logging so you can track progress. 
-
-You’ll find the revised script on my GitHub site, in the PowerShell folder:
-
-https://github.com/arcanecode/PowerShell
-
-Just look for the file “Eric Ligmans Microsoft eBook Giveaway Revised Download Script.ps1”
-
-There’s also a readme style file by the same name, which echoes this blog post. 
