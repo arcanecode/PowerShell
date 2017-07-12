@@ -23,10 +23,6 @@ $dir = "$($env:OneDrive)\Pluralsight\Azure\PS"
 # Login to Azure if you've not done so
 Add-AzureRmAccount 
 
-# Or
-$path = "$dir\ProfileContext.ctx"
-Import-AzureRmContext -Path $path
-
 #endregion Login
 
 #region Create a Virtual Network
@@ -121,7 +117,7 @@ $mainVNet = Get-AzureRmVirtualNetwork `
 $subnetName = 'PSvNetSubnet'
 $subnetAddress = '192.168.1.0/24'
 
-# Now we can add the subnet to our main network
+# Now we can add the subnet to our main network configuration
 Add-AzureRmVirtualNetworkSubnetConfig -Name $subnetName `
                                       -VirtualNetwork $mainVNet `
                                       -AddressPrefix $subnetAddress

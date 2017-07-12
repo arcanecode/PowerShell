@@ -25,10 +25,6 @@ $dir = "$($env:OneDrive)\Pluralsight\Azure\PS"
 # Login to Azure if you've not done so already
 Add-AzureRmAccount 
 
-# Or
-$path = "$dir\ProfileContext.ctx"
-Import-AzureRmContext -Path $path
-
 #endregion Login
 
 <#-------------------------------------------------------------------- 
@@ -214,7 +210,7 @@ Get-AzureRmVMImage -Location $location `
                    -Sku $sku
 
 # Let's capture the version
-$version = '13.0.400111'
+$version = '13.0.500110'
 
 # Note, you can  use a specific version number, or in the creation
 # use 'latest' to get the latest version of the VM
@@ -292,6 +288,7 @@ Add-AzureRmVmDataDisk -VM $vm `
                       -Lun 0 `
                       -CreateOption Empty
 
+# Finally! Now we'll issue the command that actually creates the VM
 New-AzureRmVm -ResourceGroupName $resourceGroupName `
               -Location $location `
               -VM $vm

@@ -24,12 +24,8 @@ $dir = "$($env:OneDrive)\Pluralsight\Azure\PS"
 # Login to Azure
 Add-AzureRmAccount 
 
-# OR
-$path = "$dir\ProfileContext.ctx"
-Import-AzureRmContext -Path $path
-
 # Make sure we are using the correct subscription
-Select-AzureRMSubscription `
+Set-AzureRmContext `
   -SubscriptionName 'Visual Studio Ultimate with MSDN'
 #endregion Login
 
@@ -137,6 +133,10 @@ Get-AzureRmResourceGroup
 Remove-AzureRmResourceGroup -Name 'MyNewRG' -Force
 Get-AzureRmResourceGroup
 
+<# So now we need a real RG to for our storage acct. #>
+New-AzureRmResourceGroup -Name 'PSDev' `
+                         -Location 'southcentralus'
+
 <#
    Storage Account names must (annoyingly) be unique across all of
    Azure. To determine if your name is in use, you can use the 
@@ -168,7 +168,7 @@ Get-AzureRmStorageUsage
 --------------------------------------------------------------------#>
 
 $resourceGroupName = 'PSDev'
-$storageAccountName = 'acpsdemo1'
+$storageAccountName = 'acpsdemo' # Yes this is a diff name than before
 
 $exists = Get-AzureRmStorageAccountNameAvailability `
             -Name $storageAccountName
@@ -274,7 +274,7 @@ Get-AzureStorageBlob -Container $containerName -Context $context |
    to get that, we'll need the storage account key.
 --------------------------------------------------------------------#>
 $resourceGroupName = 'PSDev'
-$storageAccountName = 'acpsdemo1'
+$storageAccountName = 'acpsdemo'
 $storageAccountKey = $(Get-AzureRmStorageAccountKey `
                          -ResourceGroupName $resourceGroupName `
                          -Name $storageAccountName `
@@ -443,7 +443,7 @@ Remove-AzureStorageContainer -Name 'podcastimages' `
 
 # Remove the whole storage Account
 Remove-AzureRmStorageAccount -ResourceGroupName 'PSDev' `
-                             -Name 'acpsdemo1' `
+                             -Name 'acpsdemo' `
                              -Force
 
 # Show it's gone

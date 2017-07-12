@@ -23,10 +23,6 @@ $dir = "$($env:OneDrive)\Pluralsight\Azure\PS"
 # Login to Azure
 Add-AzureRmAccount 
 
-# OR
-$path = "$dir\ProfileContext.ctx"
-Import-AzureRmContext -Path $path
-
 #endregion Login
 
 #region Create SQL Server DB
@@ -74,7 +70,20 @@ New-AzureRmSqlServerFirewallRule `
   -StartIpAddress '0.0.0.0' `
   -EndIpAddress '255.255.255.255'
 
-# Now that we have our Server, let's create an empty database
+<# 
+   Now that we have our Server, let's create an empty database.
+   The only parameter that needs explanation is the 
+   RequestedServiceObjectiveName. This sets the performance, and
+   hence bill rate, for the database. 
+
+   The four basic choices are:
+     Basic - 5 DTU
+     Standard - 10-100 DTU
+     Premium - 125-4000 DTU
+     PremiumRS - 125-1000 DTU
+
+   Through the Portal UI you can fine tune these settings.
+#>
 $dbName = 'ArcaneDB'
 New-AzureRmSqlDatabase  -ResourceGroupName $resourceGroupName `
     -ServerName $servername `
@@ -92,9 +101,10 @@ New-AzureRmSqlDatabase  -ResourceGroupName $resourceGroupName `
 
 #endregion Create SQL Server DB
 
-#region Export/Import Databases
+#region Setting up a container for migrating our databases
 <#-------------------------------------------------------------------- 
-   Exporting and Importing Databases
+   Before we can begin importing or exporting databases,
+   we must first create a container to hold them.
 --------------------------------------------------------------------#>
 
 # Before we can start exporting/importing, we need a storage area 
@@ -130,7 +140,105 @@ New-AzureStorageContainer -Name $containerName `
 # Now grab a reference to it
 $container = Get-AzureStorageContainer -Name $containerName `
                                        -Context $context
+#endregion Setting up a container for our databases
 
+
+#region Migrating to Cloud
+<#-------------------------------------------------------------------- 
+   Moving on premisis to the cloud
+--------------------------------------------------------------------#>
+# First export the database as a bacpac. You can use SqlPackage, or
+# in SSMS right click on the database, pick Tasks, then
+# Export Data-Tier Application
+#$dbName = 'wwi-ssdt'
+#$dbName = 'AdventureWorksDW2014'
+$dbName = 'TeenyTinyDB'
+$targetFile = "$dir\$($dbName).bacpac"
+$sqlPackage = '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\Microsoft\SQLDB\DAC\130\sqlpackage.exe"'
+$params = '/Action:Export ' `
+        + '/SourceServerName:localhost ' `
+        + "/SourceDatabaseName:$($dbName) " `
+        + "/targetfile:$($targetFile) " `
+        + '/OverwriteFiles:True '
+$cmd = "& $($sqlPackage) $($params)"
+Invoke-Expression $cmd
+
+# Next copy it up to the cloud. Start by getting the storage context
+$saName = 'arcanestorageaccount'
+$saKey = $(Get-AzureRmStorageAccountKey `
+             -ResourceGroupName $resourceGroupName `
+             -Name $saName).Value[0]
+$context = New-AzureStorageContext -StorageAccountName $saName `
+                                   -StorageAccountKey $saKey
+
+# Now copy it up to storage
+$containerName = 'arcanesqlstorage'
+Set-AzureStorageBlobContent -File $targetFile `
+                            -Container $containerName `
+                            -Context $context `
+                            -Blob "$($dbName).bacpac" `
+                            -ServerTimeoutPerRequest 1200 `
+                            -ClientTimeoutPerRequest 1200 `
+                            -Force
+
+# One last thing, we need to get the URI to the blob we want to import
+$storageUri = ( Get-AzureStorageBlob `
+                  -blob "$($dbName).bacpac" `
+                  -Container $containerName `
+                  -Context $context `
+              ).ICloudBlob.uri.AbsoluteUri
+
+# Now start the import of the database. 
+# Note that Start-AzureSqlDatabaseImport no longer seems to work
+$request = New-AzureRmSqlDatabaseImport `
+             -ResourceGroupName $resourceGroupName `
+             -ServerName $serverName `
+             -DatabaseName $dbName `
+             -StorageKeyType StorageAccessKey `
+             -StorageKey $saKey `
+             -StorageUri $storageUri `
+             -AdministratorLogin $cred.UserName `
+             -AdministratorLoginPassword $cred.Password `
+             -Edition Basic `
+             -ServiceObjectiveName Basic `
+             -DatabasemaxSizeBytes 5000000
+
+# Monitor the import process by using the following cmdlet
+Get-AzureRmSqlDatabaseImportExportStatus `
+  -OperationStatusLink $request.OperationStatusLink 
+
+# Loop over it 
+$keepGoing = $true
+$processTimer = [System.Diagnostics.Stopwatch]::StartNew()
+while ($keepGoing -eq $true)
+{
+  $status = Get-AzureRmSqlDatabaseImportExportStatus `
+    -OperationStatusLink $request.OperationStatusLink
+  if ($status.Status -eq 'InProgress')
+  {
+    "$((Get-Date).ToLongTimeString()) - $($status.StatusMessage)"
+    Start-Sleep -Seconds 5
+  }
+  else
+  {
+    $processTimer.Stop()
+    "$($status.Status) - Elapsed Time $($processTimer.Elapsed.ToString())"
+    $keepGoing = $false
+  }
+}
+
+
+# Show it is there
+Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName `
+                       -ServerName $serverName |
+  Select-Object ResourceGroupName, ServerName, DatabaseName, Status
+
+#endregion Migrating to Cloud
+
+#region Export/Import Databases
+<#-------------------------------------------------------------------- 
+   Exporting and Importing Databases
+--------------------------------------------------------------------#>
 # From the container we can determine the root URI where our blob  
 # will ultimately reside
 $rootUri = $container.CloudBlobContainer.Uri.AbsoluteUri
@@ -167,6 +275,28 @@ $export = New-AzureRmSqlDatabaseExport `
 # To get the status of your export
 Get-AzureRmSqlDatabaseImportExportStatus `
   -OperationStatusLink $export.OperationStatusLink
+
+# Loop over it 
+$keepGoing = $true
+$processTimer = [System.Diagnostics.Stopwatch]::StartNew()
+while ($keepGoing -eq $true)
+{
+  $status = Get-AzureRmSqlDatabaseImportExportStatus `
+    -OperationStatusLink $export.OperationStatusLink
+  if ($status.Status -eq 'InProgress')
+  {
+    "$((Get-Date).ToLongTimeString()) - $($status.StatusMessage)"
+    Start-Sleep -Seconds 5
+  }
+  else
+  {
+    $processTimer.Stop()
+    "$($status.Status) - Elapsed Time $($processTimer.Elapsed.ToString())"
+    $keepGoing = $false
+  }
+}
+
+
 
 # Show it is there
 Get-AzureStorageBlob -Container $containerName `
@@ -208,6 +338,25 @@ $import = New-AzureRmSqlDatabaseImport `
 Get-AzureRmSqlDatabaseImportExportStatus `
   -OperationStatusLink $import.OperationStatusLink
 
+# Loop over it 
+$keepGoing = $true
+$processTimer = [System.Diagnostics.Stopwatch]::StartNew()
+while ($keepGoing -eq $true)
+{
+  $status = Get-AzureRmSqlDatabaseImportExportStatus `
+    -OperationStatusLink $import.OperationStatusLink
+  if ($status.Status -eq 'InProgress')
+  {
+    "$((Get-Date).ToLongTimeString()) - $($status.StatusMessage)"
+    Start-Sleep -Seconds 5
+  }
+  else
+  {
+    $processTimer.Stop()
+    "$($status.Status) - Elapsed Time $($processTimer.Elapsed.ToString())"
+    $keepGoing = $false
+  }
+}
 
 # Get a compact list of databases and their status
 Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName `
@@ -227,76 +376,6 @@ Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName `
 
 
 #endregion Export/Import Databases
-
-#region Migrating to Cloud
-<#-------------------------------------------------------------------- 
-   Moving on premisis to the cloud
---------------------------------------------------------------------#>
-# First export the database as a bacpac. You can use SqlPackage, or
-# in SSMS right click on the database, pick Tasks, then
-# Export Data-Tier Application
-#$dbName = 'wwi-ssdt'
-$dbName = 'AdventureWorksDW2014'
-$targetFile = "$dir\$($dbName).bacpac"
-$sqlPackage = '"C:\Program Files (x86)\Microsoft Visual Studio 15.0\Common7\IDE\Extensions\Microsoft\SQLDB\DAC\130\sqlpackage.exe"'
-$params = '/Action:Export ' `
-        + '/SourceServerName:localhost ' `
-        + "/SourceDatabaseName:$($dbName) " `
-        + "/targetfile:$($targetFile) " `
-        + '/OverwriteFiles:True '
-$cmd = "& $($sqlPackage) $($params)"
-Invoke-Expression $cmd
-
-# Next copy it up to the cloud. Start by getting the storage context
-$saName = 'arcanestorageaccount'
-$saKey = $(Get-AzureRmStorageAccountKey `
-             -ResourceGroupName $resourceGroupName `
-             -Name $saName).Value[0]
-$context = New-AzureStorageContext -StorageAccountName $saName `
-                                   -StorageAccountKey $saKey
-
-# Now copy it up to storage
-$containerName = 'arcanesqlstorage'
-Set-AzureStorageBlobContent -File $targetFile `
-                            -Container $containerName `
-                            -Context $context `
-                            -Blob "$($dbName).bacpac" `
-                            -ServerTimeoutPerRequest 1200 `
-                            -ClientTimeoutPerRequest 1200
-
-# One last thing, we need to get the URI to the blob we want to import
-$storageUri = ( Get-AzureStorageBlob `
-                  -blob "$($dbName).bacpac" `
-                  -Container $containerName `
-                  -Context $context `
-              ).ICloudBlob.uri.AbsoluteUri
-
-# Now start the import of the database. 
-# Note that Start-AzureSqlDatabaseImport no longer seems to work
-$request = New-AzureRmSqlDatabaseImport `
-             -ResourceGroupName $resourceGroupName `
-             -ServerName $serverName `
-             -DatabaseName $dbName `
-             -StorageKeyType StorageAccessKey `
-             -StorageKey $saKey `
-             -StorageUri $storageUri `
-             -AdministratorLogin $cred.UserName `
-             -AdministratorLoginPassword $cred.Password `
-             -Edition Basic `
-             -ServiceObjectiveName Basic `
-             -DatabasemaxSizeBytes 5000000
-
-# Monitor the import process by using the following cmdlet
-Get-AzureRmSqlDatabaseImportExportStatus `
-  -OperationStatusLink $request.OperationStatusLink 
-
-# Show it is there
-Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName `
-                       -ServerName $serverName |
-  Select-Object ResourceGroupName, ServerName, DatabaseName, Status
-
-#endregion Migrating to Cloud
-
 
 #region Cleanup
 <#-------------------------------------------------------------------- 

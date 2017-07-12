@@ -41,19 +41,28 @@ Get-AzureRMContext
 Get-AzureRMSubscription
 
 # If you have multiple subscriptions, you can use
-# the next cmdlet to select which one
-Select-AzureRMSubscription -SubscriptionName 'Azure Free Trial'
+# the next cmdlet to select which one 
+# Note this cmdlet used to be Select-AzureRMSubscription
+Set-AzureRmContext -SubscriptionName 'Azure Free Trial'
 
-Select-AzureRMSubscription `
+Set-AzureRmContext `
   -SubscriptionName 'Visual Studio Ultimate with MSDN'
+
 #endregion Method 1 - Manual Login
 
 #region Method 2 - Importing Context
 <#-------------------------------------------------------------------- 
    Method 2 - Saving and importing your context
 
-   Note this was originally called a Profile, MS has changed the
-   main noun to be Context in the most recent versions of AzureRM
+   NOTICE: There is a bug in version 4.0 and 4.1 which breaks the 
+   Import-AzureRMContext cmdlet:
+   https://github.com/Azure/azure-powershell/issues/3954
+   Sadly this method won't work until the bug is resolved, however
+   if you are on version 3.8 it should work.
+   
+   Please note that what is now called Context was originally called
+   Profile. MS has changed the main noun to be Context in the most 
+   recent versions of AzureRM
 
    First, you will need to have logged in manually, using the
    method above.
@@ -154,9 +163,20 @@ psedit "$dir\TenantId.txt"
 <# 
    Our first step to certificate logins is the need to have a 
    certificate. For our development, we'll create a new self-signed
-   certificate
+   certificate. But before we can do so I need to make sure none
+   exist already with that name.
 #>
+# See if any already exist (this would usually only happen from 
+# running this demo previously)
+Get-Item -Path 'Cert:\CurrentUser\my\*' |
+  Where-Object Subject -eq 'CN=AutomatePSLogin' 
+  
+# If one does, remove it  
+Get-Item -Path 'Cert:\CurrentUser\my\*' |
+  Where-Object Subject -eq 'CN=AutomatePSLogin' |
+  Remove-Item
 
+# OK now we're clear to create a new certificate
 $selfSignedCertificate = New-SelfSignedCertificate `
   -CertStoreLocation 'cert:\CurrentUser\My' `
   -Subject 'CN=AutomatePSLogin' `
@@ -164,7 +184,8 @@ $selfSignedCertificate = New-SelfSignedCertificate `
   -KeyExportPolicy NonExportable
 
 # Show the newly created certificate
-Get-Item -Path 'Cert:\CurrentUser\my\*'
+Get-Item -Path 'Cert:\CurrentUser\my\*' |
+  Where-Object Subject -eq 'CN=AutomatePSLogin' 
   
 <# 
    Now we'll take the certificate, and extract is as a base64 
@@ -174,7 +195,8 @@ Get-Item -Path 'Cert:\CurrentUser\my\*'
 $certKey = [System.Convert]::ToBase64String($selfSignedCertificate.GetRawCertData())
 
 # Now we can create our new AD application. Note the identifierUris 
-# must be unique across your apps
+# must be unique across your apps. If you try to create one that
+# already exists you'll get an error.
 $app = New-AzureRmADApplication `
         -DisplayName 'ACTestCertificate' `
         -HomePage 'https://datadynasty.org' `
@@ -236,7 +258,7 @@ $certificate = Get-ChildItem -path 'Cert:\CurrentUser\my' |
 # Retrieve the tenant and app ids from the files we previously
 # saved them to. 
 $tenantID = Get-Content "$dir\TenantId.txt"
-$appID = Get-Content "$dir)\ApplicationId.txt"
+$appID = Get-Content "$dir\ApplicationId.txt"
 
 <#
    Now we have our certificate, application ID, and
@@ -298,7 +320,8 @@ Get-AzureRmAdApplication
 --------------------------------------------------------------------#>
 
 # First, login to Azure
-Login-AzureRmAccount
+# Note Login-AzureRmAccount was replaced by Add-AzureRmAccount
+Add-AzureRmAccount
 
 <#
    As before we'll need to create an Azure RM Active Directory 
@@ -366,7 +389,7 @@ $pass = ConvertTo-SecureString $password -AsPlainText –Force
 $cred = New-Object -TypeName pscredential –ArgumentList $login, $pass
  
 # Test the Automated Login
-Login-AzureRmAccount `
+Add-AzureRmAccount `
   -Credential $cred `
   -ServicePrincipal `
   –TenantId $tenantId
@@ -384,7 +407,7 @@ $pass = ConvertTo-SecureString $password -AsPlainText –Force
 $cred = New-Object -TypeName pscredential –ArgumentList $login, $pass
 
 # Now test the login
-Login-AzureRmAccount `
+Add-AzureRmAccount `
   -Credential $cred `
   -ServicePrincipal `
   –TenantId $tenantId
