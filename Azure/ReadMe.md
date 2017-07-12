@@ -21,6 +21,14 @@
   ASM is going to be retired, replaced by ARM. Thus for all demos
   in this repository we'll be using the ARM version of modules
   and cmdlets. 
+  
+  Note, the Azure SQL demo used a sample database called 
+  TeenyTinyDB, which you can find on this site at:
+  https://github.com/arcanecode/TeenyTinyDB
+  
+  However, you can substitute any database you wish to use. The
+  TeenyTinyDB was designed to be small so you could quickly learn
+  the import/export functions of Azure SQL without wating a long time.
 
   Additional Resources
    List of AzureRM cmdlets
