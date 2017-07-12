@@ -1,4 +1,4 @@
-Every year, Eric Ligman, director of Sales Excellence for Microsoft, creates a blogpost in which he gives away tons of FREE Microsoft eBooks. 
+Every year, Eric Ligman, director of Sales Excellence for Microsoft, creates a blogpost in which he gives away tons of FREE Microsoft eBooks. This year has 361 in the list. 
 
 You name it, it’s in the list. SQL Server, Azure, PowerShell, .NET, BizTalk, SharePoint, Windows Server, and more. You can find Eric’s post at:
 
@@ -14,9 +14,9 @@ I then thought “Hmm, what if my downloads were interrupted, I don’t want to 
 
 But then another problem arose. What if it had partially downloaded a file? Just checking the file names wouldn’t catch that. So I added further code to compare the file size at the source with the file size on disk. If different, then it will re-download. 
 
-So now it will skip the file only if the file name is already on the local disk, and the file sizes match. 
+So far so good, now it will skip the file only if the file name is already on the local disk, and the file sizes match. 
 
-I now encountered my next concern. Crappy internet. I live out in the country, and while I love my privacy and rural living, my internet sucks. It is prone to go down or drop packets. If it hic-cuped during a  download I didn’t want it to crash, but instead go onto the next file. 
+I now encountered my next concern. Crappy internet. I live out in the country, and while I love my privacy and rural living, my internet sucks. It is prone to go down or drop packets. If it had issues during a  download I didn’t want it to crash, but instead go onto the next file. 
 
 Thus I added a try/catch error handler, which displays an error message and continues on. 
 
@@ -27,3 +27,11 @@ This presented my final issue, what if the power went out? I’d want to know wh
 I realize some of you have superfast gigabit internet and will be able to download these almost instantly. (I hate you by the way. #jealous). So I made logging optional, so it wouldn’t create an extra file if you didn’t want it. Just set the $log variable to $false, and it will skip logging. 
 
 So there you go, a revised download script that will handle stopping and restarting the script gracefully, will look for errors, and adds logging so you can track progress. 
+
+You’ll find the revised script on my GitHub site, in the PowerShell folder:
+
+https://github.com/arcanecode/PowerShell
+
+Just look for the file “Eric Ligmans Microsoft eBook Giveaway Revised Download Script.ps1”
+
+There’s also a readme style file by the same name, which echoes this blog post. 
