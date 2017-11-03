@@ -27,7 +27,7 @@ Set-Location $dir
 . .\module-common.ps1
 
 # Login if we need to
-Connect-PSToAzure $dir
+Connect-PSToAzure $dir -Verbose
 
 # Select the Azure account to use ---------------------------------------------
 # You can use a framework such as this if you have multiple accounts

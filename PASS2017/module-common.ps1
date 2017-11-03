@@ -71,7 +71,7 @@ function Connect-PSToAzure ()
   [cmdletbinding()]
   param(
          [string]$Path
-       , [string]$PasswordFile = 'azpw.txt'
+       , [string]$ContextFile = 'ProfileContext.ctx'
        )
 
   # Login if we need to
@@ -80,15 +80,31 @@ function Connect-PSToAzure ()
     # Copy your password to the clipboard
     if ($Path -ne $null)
     {
-      $pwPathFile = "$Path\$passwordFile"
-      if ($(Test-Path $pwPathFile))
+      $contextPathFile = "$Path\$ContextFile"
+      Write-Verbose "Context File: $contextPathFile"
+      if ($(Test-Path $contextPathFile))
       {
-        Set-Clipboard $(Get-Content $pwPathFile )
+        # Old method I copied my PW to the clipboard
+        # Set-Clipboard $(Get-Content $pwPathFile )
+
+        # With AzureRM 4.4 update they fixed Import-AzureRmContext, so am
+        # going back to that method
+        try 
+        {
+          Import-AzureRmContext -Path $contextPathFile
+        }
+        catch
+        {
+          # Don't sweat an error, just begin the manual login process
+          Add-AzureRMAccount  # Login
+        }
       }
-    }
-    
-    # Begin the login process
-    Add-AzureRMAccount  # Login
+      else
+      {
+        # Begin the manual login process
+        Add-AzureRMAccount  # Login
+      }
+    }    
   }
 
 }
