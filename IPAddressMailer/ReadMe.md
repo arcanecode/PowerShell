@@ -1,8 +1,8 @@
 # IPAddressMailer
 
-Readers of my blog over at [ArcaneCode](http://arcanecode.me) may recall I'm a ham radio operator (N4IXT that's me!). One my my ham radio buddies has a cool radio that can be remotely controlled over the internet. With their software he just enters the IP address of his home (his home router that is, after we setup some port forwarding), and he can connect to and operate his radio remotely, make contacts around the world and more. 
+Readers of my blog over at [ArcaneCode](http://arcanecode.me) may recall I'm an amateur (ham) radio operator (N4IXT that's me!). One of my ham radio buddies has a cool radio that can be remotely controlled over the internet. With their software he just enters the IP address of his home (his home router that is, after we setup some port forwarding), and he can connect to and operate his radio remotely, make contacts around the world and more. 
 
-The tricky part of all this came in the sentence *enters the IP address of his home...*. His home router tends to change it's address on the whim of his service provider. If the router reboots, it will definately have a new address when it comes up. You may be thinking "well just get a static IP address". Unfortunately his provider can't provide him this, something about him using a bonded pair of 10 mb lines to get 20 mb prevents it. 
+The tricky part of all this came in the sentence *enters the IP address of his home...*. His home router tends to change its address on the whim of his service provider. If the router reboots, it will definitely have a new address when it comes up. You may be thinking "well just get a static IP address". Unfortunately, his internet service provider can't give him this, something about him using a bonded pair of 10 mb lines to get 20 mb prevents it. 
 
 So how could he get notified when his IP address changes? Well I was fairly certain I could solve his problem with some simple PowerShell scripting! This solution consists of three PowerShell scripts. 
 
@@ -11,7 +11,7 @@ So how could he get notified when his IP address changes? Well I was fairly cert
 
 The core is **IPAddressMailer.ps1**. This is what handles checking for changes, and emails the results. At the top of the script are a few variables the user of the script will need to set. 
 
-First is the email address the email is to be sent from, and the password. The script is setup using GMail, as it's pretty friendly to use with scripting. Before anyone says anything about passwords in scripts, I recommend a GMail account be setup expressly for this purpose. That way if someone did hack in, all they'd see is a bunch of messages "Hi your IP address is..." (and probably some spam). Under those circumstances the cost of lost data (i.e. lost email account) were negligable to the point I didn't spend the time to come up with some elaborate encryption scheme. 
+First is the email address the email is to be sent from, and the password. The script is setup using GMail, as it's pretty friendly to use with scripting. Before anyone says anything about passwords in scripts, I recommend a GMail account be setup expressly for this purpose. That way if someone did hack in, all they'd see is a bunch of messages "Hi your IP address is..." (and probably some spam). Under those circumstances the cost of lost data (i.e. lost email account) were negligible to the point I didn't spend the time to come up with some elaborate encryption scheme. 
 
 The next piece of information is the email account the messages are being sent to. No password needed here, and it could be the same email address as the one you are sending from. 
 
@@ -29,13 +29,13 @@ OK, so as you see this script is what does the bulk of the work as far as checki
 
 ### ScheduleIPAddressMailer.ps1
 
-This solution uses the Windows Task Scheduler to run the IPAddressMailer.ps1 script. If you are unfamilar with it, at regular intervals the Task Scheduler looks in its list and says "do I have any tasks I need to run right now?". If it finds a task, it then runs it. 
+This solution uses the Windows Task Scheduler to run the IPAddressMailer.ps1 script. If you are unfamiliar with it, at regular intervals the Task Scheduler looks in its list and says "do I have any tasks I need to run right now?". If it finds a task, it then runs it. 
 
 The **ScheduleIPAddressMailer.ps1** setups up entries in the Windows Task Scheduler that will execute the IPAddressMailer.ps1 script. This is a rather nice solution in that the IPAddressMailer script is not constantly running in the background, consuming resources. It runs, then exits. 
 
-There are only two things that a user of this script may need to change. First is the $timesToRun array at the top. By default it executes at the top of every hour. If you want to run more frequently, just add more entries. You could, for example, have it run every fifteen minutes. If you go with the defaults of only emailing when the address changes, the resources used will be minimal and you won't be flooded with emails. You could also reduce the amount of times it runs by removing entries. 
+There are only two things that a user of this script may need to change. First is the $timesToRun array at the top. By default, it executes at the top of every hour. If you want to run more frequently, just add more entries. You could, for example, have it run every fifteen minutes. If you go with the defaults of only emailing when the address changes, the resources used will be minimal and you won't be flooded with emails. You could also reduce the amount of times it runs by removing entries. 
 
-Just be sure that if you are adding or removing entries, that every entry have a comma after it except the very last one. Note too the 0's on the front of the times isn't necessary for the scheduler, you could also put '1:00pm'. The zeros were just included as the time becomes part of the task name in Windows Task Scheduler and it makes the list within it a bit easier to read. 
+Just be sure that if you are adding or removing entries, that every entry has a comma after it except the very last one. Note too the 0's on the front of the times isn't necessary for the scheduler, you could also put '1:00pm'. The zeros were just included as the time becomes part of the task name in Windows Task Scheduler and it makes the list within it a bit easier to read. 
 
 The second important variable to note is the $path variable. Just like with IPAddressMailer.ps1, this is where you have the scripts installed. By default it is C:\IPAddressMailer. 
 
@@ -83,7 +83,7 @@ Get-ExecutionPolicy
 
 If this shows *Unrestricted* you are good to go, although this is a bit risky. It should only be used by advanced PowerShell users, as it allows any script from anywhere to run. 
 
-If it reads RemoteSigned, you are also good to go. This is a good balance for most users. It allows you to run scripts you create on your computer (such as when you'll manually copy the scripts here to your PC), but prevents bad guys from hacking into your system and trying to run scripts remotely. 
+If it reads RemoteSigned, you are also good to go. This is a good balance for most users. It allows you to run scripts you create on your computer (such as when you'll manually copy the scripts here to your PC) but prevents bad guys from hacking into your system and trying to run scripts remotely. 
 
 If it reads anything else, you'll have to update it to RemoteSigned in order to run the scripts in this project. To update, simply type in the following command into the same area where you just did the Get.
 
@@ -91,11 +91,11 @@ If it reads anything else, you'll have to update it to RemoteSigned in order to 
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 ```
 
-Assuming you are running the ISE as an adminstrator, it should update without any errors. 
+Assuming you are running the ISE as an administrator, it should update without any errors. 
 
-Next you'll want to create the PS1 files in this project. The ISE works like any other editor. Use File, New to create a new empty script, copy the code for IPAddressMailer.ps1 into it, and do a File, Save As... to save it into the C:\IPAddressMailer folder. Repeat with the other two scripts. 
+Next, you'll want to create the PS1 files in this project. The ISE works like any other editor. Use File, New to create a new empty script, copy the code for IPAddressMailer.ps1 into it, and do a File, Save As... to save it into the C:\IPAddressMailer folder. Repeat with the other two scripts. 
 
-If you want to test, you can run the IPAddressMailer.ps1 file. After you update the script per the instructions within (as described above) you can run it by one of three methods: File, Run on the menu; clicking the big green arrow in the toolbar; or (my favorite) just hitting the F5 key. If you configured it right you should have an e-mail pop up with your IPAddress. If you want to test again, you could either update the *always run* variable to true, or delete the two txt files that were created. (See the *other files* section above.)
+If you want to test, you can run the IPAddressMailer.ps1 file. After you update the script per the instructions within (as described above) you can run it by one of three methods: File, Run on the menu; clicking the big green arrow in the toolbar; or (my favorite) just hitting the F5 key. If you configured it right, you should have an e-mail pop up with your IPAddress. If you want to test again, you could either update the *always run* variable to true, or delete the two txt files that were created. (See the *other files* section above.)
 
 You're almost done! After making the (optional) changes described in the ScheduleIPAddressMailer section, just run the ScheduleIPAddressMailer.ps1 file to setup the task scheduler. Note you can update the IPAddressMailer.ps1 file without having to rerun the scheduler. For example, maybe you setup to email you once a day ($emailOnceADay = $true) and you decide you no longer want this. You can just change it back to false without having to recreate the schedule. 
 
@@ -103,7 +103,7 @@ You're almost done! After making the (optional) changes described in the Schedul
 
 ### Other Uses
 
-While this entire project was created to solve a specific problem, the files within could be used as a template in your own projects. The IPAddressMailer.ps1 has code that could be used to check the external IP address of a system. Additionally it has code for sending emails via GMail. 
+While this entire project was created to solve a specific problem, the files within could be used as a template in your own projects. The IPAddressMailer.ps1 has code that could be used to check the external IP address of a system. Additionally, it has code for sending emails via GMail. 
 
 The scheduler and unscheduler could serve as examples of setting up and tearing down tasks within Windows Task Scheduler that could call your own PowerShell scripts. 
 
@@ -111,23 +111,23 @@ The scheduler and unscheduler could serve as examples of setting up and tearing 
 
 ### System Specs
 
-I developed this on a Windows 10 Pro 64 bit system with PowerShell 5.1. My ham buddy who I wrote this for is also on Win 10 Pro. Your mileage may vary depending on your version of Windows and PowerShell. 
+I developed this on a Windows 10 Pro 64-bit system with PowerShell 5.1. My ham buddy who I wrote this for is also on Win 10 Pro. Your mileage may vary depending on your version of Windows and PowerShell. 
 
 ---
 
 ### Copyright
 
-This entire project is Copyright (c) 2018 by Robert C. Cain. It is free for you to use, with no warrenty or guarentees expressed or implied. Use at your own risk. As I am able I will try to provide support for this code, answer questions, and the like. Understand my time, like everyone's, is limited so replies may take some time. 
+This entire project is Copyright (c) 2018 by Robert C. Cain. It is free for you to use, with no warranty or guarantees expressed or implied. Use at your own risk. As I am able I will try to provide support for this code, answer questions, and the like. Understand my time, like everyone's, is limited so replies may take some time. 
 
 You are free to use sections of code within your own project. Attribution is appreciated, although not required.
 
-You may not reproduce the entire project in it's entirety elsewhere on the internet, nor resell it. You are more than welcome to provide links back to this project or to my blog. 
+You may not reproduce the entire project in its entirety elsewhere on the internet, nor resell it. You are more than welcome to provide links back to this project or to my blog. 
 
 ---
 
-### Acknowledegements
+### Acknowledgements
 
-In 1675 Sir Issac Newton wrote "If I have seen further it is by standing on the shoulders of Giants." There are a few people who helped out with this project through blog posts and suggestions. 
+In 1675 Sir Isaac Newton wrote "If I have seen further it is by standing on the shoulders of Giants." There are a few people who helped out with this project through blog posts and suggestions. 
 
 The first is the (now retired) scripting legend Ed Wilson. Some time back he wrote a blog post on [The Scripting Guy](https://blogs.technet.microsoft.com/heyscriptingguy/2015/01/13/use-powershell-to-create-scheduled-tasks/) website on setting up scheduled tasks in PowerShell. This article served as the foundation for my setting up of tasks. 
 
