@@ -107,6 +107,6 @@ In 1675 Sir Issac Newton wrote "If I have seen further it is by standing on the 
 
 The first is the (now retired) scripting legend Ed Wilson. Some time back he wrote a blog post on [The Scripting Guy](https://blogs.technet.microsoft.com/heyscriptingguy/2015/01/13/use-powershell-to-create-scheduled-tasks/) website on setting up scheduled tasks in PowerShell. This article served as the foundation for my setting up of tasks. 
 
-Next, some of my fellow Microsoft MVP's from the PowerShell side of the house assisted me with additional parameters needed in setting up the task to run unattended. A special shout out to [Michael B Smith](https://www.linkedin.com/in/theessentialexchange/), [Jan Egil Ring](http://www.powershell.no/about/), [Arnaud Petitjean](https://www.editions-eni.fr/supports-de-cours/arnaud-petitjean), and (Chrissy LeMaire](https://blog.netnerds.net/author/chrissy/). 
+Next, some of my fellow Microsoft MVP's from the PowerShell side of the house assisted me with additional parameters needed in setting up the task to run unattended. A special shout out to [Michael B Smith](https://www.linkedin.com/in/theessentialexchange/), [Jan Egil Ring](http://www.powershell.no/about/), [Arnaud Petitjean](https://www.editions-eni.fr/supports-de-cours/arnaud-petitjean), and [Chrissy LeMaire](https://blog.netnerds.net/author/chrissy/){:target="_blank"}. 
 
 
