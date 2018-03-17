@@ -109,6 +109,18 @@ The scheduler and unscheduler could serve as examples of setting up and tearing 
 
 ---
 
+### Future
+
+There are some things I may revisit in the future. The scripts and functions were written very basically, it was coded quickly to solve a real-world problem. There is likely some clean up that could be done. For example, the functions could be rewritten as advanced functions. 
+
+It may also be worth converting some of the variables that have to be setup in the scripts as parameters, or perahaps create a separate config file with those pieces of information. A user could just update the config file without updating the scripts themselves. 
+
+The password issue is also something I may revisit. As stated, if you setup an email account for just this script the risk is negligible, but putting unencrypted passwords in a script still annoys me. 
+
+I'm also open to other ideas or suggestions. 
+
+---
+
 ### System Specs
 
 I developed this on a Windows 10 Pro 64-bit system with PowerShell 5.1. My ham buddy who I wrote this for is also on Win 10 Pro. Your mileage may vary depending on your version of Windows and PowerShell. 
