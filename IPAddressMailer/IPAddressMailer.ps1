@@ -67,7 +67,7 @@ $toEmailAddress = "you@somewhere.com"
 # If you want to have multile emails in the TO, load them into an array
 # like this:
 #
-# $toEmailAddress = @("mrrobertccain@gmail.com", "n4ixt@outlook.com")
+# $toEmailAddress = @("email1@gmail.com", "email2@outlook.com", "email3@yahoo.com")
 #
 # Just add more addresses to the end (with commas) as needed.
 
@@ -254,9 +254,11 @@ Have a great day!
                    -Credential $cred 
 
   # Update the last IP address file
+  $lastIPAddressFile = "$Path\LastIPAddress.txt"
   Set-Content -Path $lastIPAddressFile -Value $externalIP -Force
 
   # And the date we ran
+  $yesterdayFile = "$path\LastIPAddressRunDate.txt"
   Set-Content -Path $yesterdayFile -Value $today -Force
   
 }

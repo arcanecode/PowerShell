@@ -54,12 +54,30 @@
 # To add more times, just put a comma after the last time, hit enter, then 
 # add the new time. Or you can remove times by just deleting them. 
 
-$timesToRun = @('8:00am',
+$timesToRun = @('12:00am',
+                '01:00am',
+                '02:00am',
+                '03:00am',
+                '04:00am',
+                '05:00am',
+                '06:00am',
+                '07:00am',
+                '08:00am',
+                '09:00am',
+                '10:00am',
                 '11:00am',
-                '2:00pm',
-                '5:00pm',
-                '8:00pm',
-                '10:00pm'
+                '12:00pm',
+                '01:00pm',
+                '02:00pm',
+                '03:00pm',
+                '04:00pm',
+                '05:00pm',
+                '06:00pm',
+                '07:00pm',
+                '08:00pm',
+                '09:00pm',
+                '10:00pm',
+                '11:00pm'
                )
 
 
@@ -70,7 +88,6 @@ $timesToRun = @('8:00am',
 # use the documents folder, or OneDrive, use something on the C drive.
 
 $path = 'C:\IPAddressMailer'
-$bat = "$path\IPAddressMailer.bat"
 $script = "$path\IPAddressMailer.ps1"
 
 <#-----------------------------------------------------------------------------
@@ -78,10 +95,6 @@ $script = "$path\IPAddressMailer.ps1"
   tasks in the Windows Task Scheduler, all tasks will begin with the 
   title SendExternalIP_at_ with the time to run ending the task name.   
 -----------------------------------------------------------------------------#>
-
-# Create the BAT file the script will run.
-$command = "PowerShell.exe -NoProfile -WindowStyle Hidden -File `"$script`""
-Set-Content -Path $bat -Value $command -Force
 
 # This creates a task action object, it will hold the program to be executed,
 # plus any parameters for you want the scheduler to run. Here we need to run
