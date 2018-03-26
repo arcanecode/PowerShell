@@ -1,0 +1,14 @@
+﻿<ProjectState>
+  <Version>1.0</Version>
+  <FileID>e91d14b0-4f9c-4f5c-b9ac-94ad77141930</FileID>
+  <OpenFolders />
+  <OpenFiles>
+    <File>PSAzure.psd1</File>
+    <File>PSAzure.psm1</File>
+    <File>PSAzure-Storage.ps1</File>
+    <File>PSAzure-AzureSQL.ps1</File>
+    <File>PSAzure-VM.ps1</File>
+    <File>PSAzure-VirtualNetwork.ps1</File>
+    <File>PSAzure-Login.ps1</File>
+  </OpenFiles>
+</ProjectState>

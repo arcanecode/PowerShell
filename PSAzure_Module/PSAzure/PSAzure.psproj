@@ -1,0 +1,20 @@
+﻿<Project Synchronized="False" SyncFilter="*.ps1;*.psm1;*.psd1;*.ps1xml;*.psf;*.pss;*.xml;*.help.txt">
+  <Version>2.0</Version>
+  <FileID>e91d14b0-4f9c-4f5c-b9ac-94ad77141930</FileID>
+  <ProjectType>1</ProjectType>
+  <Folders />
+  <Files>
+    <File Build="2">PSAzure.psd1</File>
+    <File Build="0">PSAzure.psm1</File>
+    <File Build="1">.gitignore</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-AzureSQL_ps1">PSAzure-AzureSQL.ps1</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-Hive_ps1">PSAzure-Hive.ps1</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-Login_ps1">PSAzure-Login.ps1</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-ResourceGroups_ps1">PSAzure-ResourceGroups.ps1</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-Storage_ps1">PSAzure-Storage.ps1</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-Text_ps1">PSAzure-Text.ps1</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-VirtualNetwork_ps1">PSAzure-VirtualNetwork.ps1</File>
+    <File Build="2" Shared="True" ReferenceFunction="Invoke-PSAzure-VM_ps1">PSAzure-VM.ps1</File>
+  </Files>
+  <StartupScript>C:\Users\arcan\OneDrive\Pluralsight\PSAzure-Module\PSAzure\Test-Module.ps1</StartupScript>
+</Project>
