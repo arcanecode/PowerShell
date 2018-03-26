@@ -12,11 +12,11 @@ Code was developed using PowerShell 5.1 and the AzureRM module 5.3.0. Test caref
  
 # Copyright
 All of the code in this branch, including its sub branches, are Copyright (c) 2017, 2018 Robert C. Cain. All rights reserved. 
-The code herein is for demonstration purposes. No warranty or guarentee is implied or expressly granted. 
+The code herein is for demonstration purposes. No warranty or guarentee is implied or expressly granted. Users assume all risks and liabilities.
  
-This code may be used in your projects. 
+This code may be used in your projects. Attribution appreciated, but not required.
 
-This code may NOT be reproduced in whole or in part, in print, video, or on the internet, without the express written consent of the author. 
+This code may **NOT** be reproduced in whole or in part, in print, video, or on the internet, without the express written consent of the author. 
 
 # Contact Information
 Author: Robert C. Cain | [@ArcaneCode](https://twitter.com/arcanecode) | info@arcanetc.com | http://arcanecode.me
