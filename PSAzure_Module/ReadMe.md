@@ -19,7 +19,7 @@ This code may be used in your projects.
 This code may NOT be reproduced in whole or in part, in print, video, or on the internet, without the express written consent of the author. 
 
 # Contact Information
-Author: Robert C. Cain | @ArcaneCode | info@arcanetc.com | http://arcanecode.me
+Author: Robert C. Cain | [@ArcaneCode](https://twitter.com/arcanecode) | info@arcanetc.com | http://arcanecode.me
 
 # Support
 Support for this module is provided as I have time. Please email with any bugs you find, suggestions, or enhancements. 
