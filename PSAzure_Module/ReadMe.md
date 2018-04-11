@@ -7,6 +7,8 @@ This folder contains the code for the module PSAzure, along with examples of usi
 
 * PSAzure-Deploy has scripts to deploy the module to the WindowsPowerShell in their Documents folder. 
 
+* PSAzure-Module.zip - All of the files in this project in one easy to download file. It has the ReadMe's in txt format, and preserves the folder structure. 
+
 # Platform
 Code was developed using PowerShell 5.1 and the AzureRM module 5.3.0. Test carefully, as Microsoft has in the past, and may in the future make breaking changes to the AzureRM module. 
  
