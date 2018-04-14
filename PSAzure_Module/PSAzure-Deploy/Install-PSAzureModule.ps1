@@ -1,4 +1,4 @@
-# This script assumes you have placed the module in a folder with
+﻿# This script assumes you have placed the module in a folder with
 # the name in the $moduleFolder
 $moduleFolder = 'PSAzure-Module'
 
