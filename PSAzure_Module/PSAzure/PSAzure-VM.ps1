@@ -18,6 +18,9 @@
     Get-PSAzureVMStatus
     Stop-PSAzureVM
     Start-PSAzureVM
+    New-PSAzureVM
+    New-PSAzureVMRDP
+    Remove-PSAzureVM
 
 -----------------------------------------------------------------------------#>
 
@@ -588,7 +591,8 @@ function New-PSAzureVMRDP ()
 
   .DESCRIPTION
   Creates a remote desktop protocol (RDP) file by which a user may access
-  the virtual machine that exists in Azure. 
+  the virtual machine that exists in Azure. If the file already exists, it
+  will be deleted before the new one is created. 
 
   .PARAMETER ResourceGroupName
   The resource group holding the virtual machine
@@ -598,9 +602,6 @@ function New-PSAzureVMRDP ()
 
   .PARAMETER Path
   The path (including file name) to store the RDP file
-
-  .PARAMETER Force
-  Will force the overwrite of the RDP file if it already exists
 
   .INPUTS
   System.String
@@ -641,40 +642,28 @@ function New-PSAzureVMRDP ()
                    )
          ]
          [string]$Path
-         ,
-         [switch]$Force
        )
 
   $fn = 'New-PSAzureVMRDP:'
   Write-Verbose "$fn Checking for RDP $Path"
-
-  # Default the create flat to create the RDP
-  $create = $true
 
   # See if the RDP is already there
   $exists = Test-Path $Path 
 
   # If it's there, set the create flag to false
   if ($exists -eq $true)
-  { $create = $false }
-
-  # ...unless the force flag was set, in which case force the create
-  if ($Force -eq $true)
-  { $create = $true }
+  { 
+    Remove-Item -Path $Path `
+                -Force `
+                -ErrorAction SilentlyContinue
+  }
 
   # Create the RDP File
-  if ($create -eq $true)
-  {
-    Write-Verbose "$fn Creating RDP File $Path"
-    Get-AzureRmRemoteDesktopFile `
-      -ResourceGroupName $ResourceGroupName `
-      -Name $VMName `
-      -LocalPath $Path
-  }
-  else
-  {
-    Write-Verbose "$fn RDP File $Path already exists"
-  }
+  Write-Verbose "$fn Creating RDP File $Path"
+  Get-AzureRmRemoteDesktopFile `
+    -ResourceGroupName $ResourceGroupName `
+    -Name $VMName `
+    -LocalPath $Path
 
 }
 #endregion New-PSAzureVMRDP

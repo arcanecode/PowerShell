@@ -55,6 +55,9 @@
   Export-ModuleMember Remove-PsAzureResourceGroup
 
 # PSAzure-Storage
+  Export-ModuleMember Test-PSAzureValidStorageAccountName
+  Export-ModuleMember Test-PSStorageAccountNameAvailability
+  Export-ModuleMember Test-PSStorageAccount
   Export-ModuleMember New-PSStorageAccount
   Export-ModuleMember Get-PSStorageAccountKey
   Export-ModuleMember Get-PSStorageContext

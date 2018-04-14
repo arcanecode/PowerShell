@@ -24,6 +24,292 @@
 
 -----------------------------------------------------------------------------#>
 
+#region Test-PSStorageAccountNameAvailability
+<#---------------------------------------------------------------------------#>
+<# Test-PSStorageAccountNameAvailability                                     #>
+<#---------------------------------------------------------------------------#>
+function Test-PSStorageAccountNameAvailability
+{
+<#
+  .SYNOPSIS
+  Tests to see if a storage account name is available
+
+  .DESCRIPTION
+  Checks to see if an Azure storage account name is available. Storage account
+  names must be unique across Azure, so you should call this function prior to
+  attempting to create a new storage account. 
+
+  Returns $true if the account name is available, or $false if is not. 
+
+  .PARAMETER StorageAccountName
+  The name of the storage account to check.
+
+  .INPUTS
+  System.String
+
+  .OUTPUTS
+  System.boolean - True if is available, false otherwise
+
+  .EXAMPLE
+  Test-PSStorageAccountNameAvailability `
+    -StorageAccountName 'ArcaneStorageAcct'
+
+  .NOTES
+  Author: Robert C. Cain  @arcanecode
+  Website: http://arcanecode.me
+  Copyright (c) 2017 All rights reserved
+
+.LINK
+  http://arcanecode.me
+#>
+  [cmdletbinding()]
+  param(
+         [Parameter( Mandatory=$true
+                   , HelpMessage='The name of the storage account to validate'
+                   )
+         ]
+         [string]$StorageAccountName
+       )
+
+  $fn = 'Test-PSStorageAccountNameAvailability:'
+
+  # Check to see if the storage account exists
+  Write-Verbose "$fn Checking Storage Account Name Availability for $StorageAccountName"
+  $saNameAvailable = Get-AzureRmStorageAccountNameAvailability `
+                        -Name $StorageAccountName
+  $retVal = $saNameAvailable.NameAvailable
+
+  return $retVal
+}
+#endregion Test-PSStorageAccountNameAvailability
+
+
+
+#region Test-PSAzureValidStorageAccountName 
+<#---------------------------------------------------------------------------#>
+<# Test-PSAzureValidStorageAccountName                                       #>
+<#---------------------------------------------------------------------------#>
+function Test-PSAzureValidStorageAccountName ()
+{
+<#
+  .SYNOPSIS
+  Tests to see if a storage account name meets the Azure naming requirements
+
+  .DESCRIPTION
+  Storage account names must be between 3 and 24 characters, must only be
+  lowercase characters, and cannot contain punctuation. 
+
+  This function checks to see if the passed in storage account name violates
+  the above rules. It returns an object with two properties, Valid and Reason
+  
+  Vaild will be true if it is a good name or false otherwise.
+  Reason will contain text with the reason why the name is invalid. 
+
+  .PARAMETER StorageAccountName
+  The name of the storage account to check.
+
+  .INPUTS
+  System.String
+
+  .OUTPUTS
+  System.object
+
+  .EXAMPLE
+  Test-PSAzureValidStorageAccountName -StorageAccountName 'ArcaneStorageAcct' 
+
+  .NOTES
+  Author: Robert C. Cain  @arcanecode
+  Website: http://arcanecode.me
+  Copyright (c) 2017 All rights reserved
+
+.LINK
+  http://arcanecode.me
+#>
+  [cmdletbinding()]
+  param(
+         [Parameter( Mandatory=$true
+                   , HelpMessage='The name of the storage account to validate'
+                   )
+         ]
+         [string]$StorageAccountName
+       )
+
+  $fn = 'Test-PSStorageAccountNameAvailability:'
+
+  # Check to see if the storage account exists
+  Write-Verbose "$fn Checking storage account naming rules for $StorageAccountName"
+
+  # This function will return an object with a flag for a valid
+  # name (true or false) and the reason why
+  $good = "$StorageAccountName is a valid storage account name"
+  $properties = [ordered]@{ Valid = $true
+                            Reason = $good
+                          }
+
+  # Create an object of type PSObject
+  $retVal = New-Object -TypeName PSObject -Property $properties
+  
+  # Check to see if the name is at least 3 characters
+  Write-Verbose "$fn Checking minimum length for $StorageAccountName"
+  if ($StorageAccountName.Length -lt 3)
+  {
+    $retVal.Valid = $false
+    $msg = "Name $StorageAccountName is too short, must be at least 3 characters"
+    if ( $retVal.Reason.Equals($good) )
+    { $r = $msg }
+    else
+    { $r = "$($retVal.Reason)`r`n  and $($msg)" }
+    $retVal.Reason = $r
+  }
+
+  # Ensure the name does not exceed 24 characters
+  Write-Verbose "$fn Checking maximum length for $StorageAccountName"
+  if ($StorageAccountName.Length -gt 24)
+  {
+    $retVal.Valid = $false
+    $msg = "The name $StorageAccountName is too long, names cannot exceed 24 characters"
+    if ( $retVal.Reason.Equals($good) )
+    { $r = $msg }
+    else
+    { $r = "$($retVal.Reason)`r`n  and $($msg)" }
+    $retVal.Reason = $r
+  }
+
+  # Ensure there are only lowercase characters
+  Write-Verbose "$fn Checking character case for $StorageAccountName"
+  if ( !($StorageAccountName.Equals($StorageAccountName.ToLower())) )
+  {
+    $retVal.Valid = $false
+    $msg = "The name $StorageAccountName cannot have captial letters"
+    if ( $retVal.Reason.Equals($good) )
+    { $r = $msg }
+    else
+    { $r = "$($retVal.Reason)`r`n  and $($msg)" }
+    $retVal.Reason = $r
+  }
+  
+  # Ensure no punctuation 
+  Write-Verbose "$fn Checking invalid characters for $StorageAccountName"
+  $punctuation = [char[]]" [!@#$%^&*()_-=+\{}|;':`",./<>?~]``"
+  $invalidChars = @()
+  foreach($c in $punctuation)
+  {
+    if ( $StorageAccountName.Contains($c) )
+    { $invalidChars += $c }
+  }
+  
+  # Convert to a string
+  $invalidChars = $invalidChars -join ''
+
+  # Set the reason with all of the invalid chars  
+  if ( $invalidChars.Length -gt 0 )
+  { 
+    $retVal.Valid = $false
+    $msg = "The name $StorageAccountName contains these invalid characters: $invalidChars"
+    if ( $retVal.Reason.Equals($good) )
+    { $r = $msg }
+    else
+    { $r = "$($retVal.Reason)`r`n  and $($msg)" }
+    $retVal.Reason = $r
+  }
+
+  return $retVal
+
+}
+#endregion Test-PSAzureValidStorageAccountName 
+
+
+
+#region Test-PSStorageAccount
+<#---------------------------------------------------------------------------#>
+<# Test-PSStorageAccount                                                     #>
+<#---------------------------------------------------------------------------#>
+function Test-PSStorageAccount ()
+{ 
+<#
+  .SYNOPSIS
+  Tests to see if a storage account exists within the Azure resource group
+
+  .DESCRIPTION
+  Checks to see if an Azure storage account exists for the passed in 
+  exists in this resource group. Returns $true if it does, or $false if 
+  it does not. 
+
+  If you want to check to see if the storage account name is available, 
+  instead use the Test-PSStorageAccountNameAvailability function. 
+
+  .PARAMETER StorageAccountName
+  The name of the storage account to check.
+
+  .PARAMETER ResourceGroupName
+  The resource group to the storage account should exist in.
+
+  .Parameter Location
+  The Azure geographic location holding the resource group.
+
+  .INPUTS
+  System.String
+
+  .OUTPUTS
+  System.boolean - True if it exists, false otherwise
+
+  .EXAMPLE
+  Rest-PSStorageAccount -StorageAccountName 'ArcaneStorageAcct' `
+                        -ResourceGroupName 'ArcaneRG' `
+                        -Location 'southcentralus'
+
+  .NOTES
+  Author: Robert C. Cain  @arcanecode
+  Website: http://arcanecode.me
+  Copyright (c) 2017 All rights reserved
+
+.LINK
+  http://arcanecode.me
+#>
+  [cmdletbinding()]
+  param(
+         [Parameter( Mandatory=$true
+                   , HelpMessage='The name of the storage account to create'
+                   )
+         ]
+         [string]$StorageAccountName
+       , [Parameter( Mandatory=$true
+                   , HelpMessage='The resource group to put the storage account in'
+                   )
+         ]
+         [string]$ResourceGroupName 
+       , [Parameter( Mandatory=$true
+                   , HelpMessage='The geo location to put the storage account in'
+                   )
+         ]
+         [string]$Location
+       )
+
+  $fn = 'Test-PSStorageAccount:'
+
+  # Check to see if the storage account exists
+  Write-Verbose "$fn Checking Storage Account $StorageAccountName"
+  $saExists = Get-AzureRMStorageAccount `
+                -ResourceGroupName $ResourceGroupName `
+                -Name $StorageAccountName `
+                -ErrorAction SilentlyContinue
+
+  # Return false if it does not exist, otherwise true.
+  if ($saExists -eq $null)
+  { 
+    Write-Verbose "$fn Storage Account $StorageAccountName does not exist"
+    $retVal = $false
+  }
+  else
+  {
+    Write-Verbose "$fn Storage Account $StorageAccountName exists"
+    $retVal = $true
+  }
+
+  return $retVal
+}
+#endregion Test-PSStorageAccount
+
 #region New-PSStorageAccount
 <#---------------------------------------------------------------------------#>
 <# New-PSStorageAccount                                                      #>
@@ -36,8 +322,16 @@ function New-PSStorageAccount ()
 
   .DESCRIPTION
   Checks to see if an Azure storage account exists in a particular resource
-  group. If not, it will create it. 
+  group. If not, it will create it if the name isn't taken elsewhere in
+  Azure. (Storage account names must be unique across Azure).
 
+  To check to see if the storage account name is available first call the
+  function Test-PSStorageAccountNameAvailability.
+
+  In addition to being unique, storage account names have naming rules:
+  Storage account name must be between 3 and 24 characters, and use 
+  numbers and lower-case letters only.
+  
   .PARAMETER StorageAccountName
   The name of the storage account to create.
 
@@ -89,13 +383,13 @@ function New-PSStorageAccount ()
 
   # Check to see if the storage account exists
   Write-Verbose "$fn Checking Storage Account $StorageAccountName"
-  $saExists = Get-AzureRMStorageAccount `
+  $saExists = Test-PSStorageAccount `
                 -ResourceGroupName $ResourceGroupName `
-                -Name $StorageAccountName `
-                -ErrorAction SilentlyContinue
+                -StorageAccountName $StorageAccountName `
+                -Location $Location
 
   # If not, create it.
-  if ($saExists -eq $null)
+  if ($saExists -eq $false)
   { 
     Write-Verbose "$fn Creating Storage Account $StorageAccountName"
     New-AzureRmStorageAccount -ResourceGroupName $ResourceGroupName `
