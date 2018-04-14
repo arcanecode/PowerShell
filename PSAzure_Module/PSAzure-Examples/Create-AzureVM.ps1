@@ -67,7 +67,47 @@ $location = 'southcentralus'
 
 # Storage account name must be between 3 and 24 characters 
 # and use numbers and lower-case letters only.
+# PSAzure has function that can validate the naming rules
 $storageAccount = 'azurepsteststorageacct'
+
+$isValid = Test-PSAzureValidStorageAccountName `
+               -StorageAccountName $storageAccount
+
+# The return value is an object with two properties, Valid and Reason.
+# For demonstration purposes we'll just display these here, in 
+# your code you may want to use an IF statement should you not 
+# be hard coding in a name you already know is valid
+"Valid Storage Account = $($isValid.Valid)"
+"Reason: $($isValid.Reason)"
+
+# Again for demo purposes we'll show the result with
+# a bad name. If you adapt this example script for your
+# environment obviously remove this section
+$badName = "abcdefghijklmnopqrstuvwXYZ1!(R^@XF/]$"
+$isValid = Test-PSAzureValidStorageAccountName `
+               -StorageAccountName $badName
+"Valid Storage Account = $($isValid.Valid)"
+"Reason: $($isValid.Reason)"
+
+# Storage account names must be unique across all of Azure. You can 
+# check to see if the storage account name you want to use has been
+# taken already. Returns true if the name is available
+$saAvailable = Test-PSStorageAccountNameAvailability `
+                   -StorageAccountName $storageAccount
+Write-Host "Is the name available? $saAvailable"
+
+# You can test to see if the storage account already exists in your
+# environment. Returns true if it exists, false otherwise
+$saExists = Test-PSStorageAccount `
+                -StorageAccountName $storageAccount `
+                -ResourceGroupName $resourceGroup `
+                -Location $location
+Write-Host "Does the account already exist in our environment? $saExists"
+
+# The script from here on assumes the name is available on Azure, and
+# that it meets the naming conventions. Depending on your task you may
+# wish to adapt this with error handling for an unavailable name or
+# an invalid name.
 
 # Create a resource group for our test
 New-PSResourceGroup -ResourceGroupName $resourceGroup -Location $location
@@ -164,7 +204,8 @@ New-PSAzureVM `
 Get-PSAzureVMStatus -ResourceGroupName $resourceGroup `
                     -VMName $vmName
 
-# Create an RDP for the new VM and open it
+# Generate the file name for the RDP.
+# Create the RDP for the new VM and open it
 $rdpFile = "$($dir)\$($vmName).rdp"
 New-PSAzureVMRDP -ResourceGroupName $resourceGroup `
                  -VMName $vmName `
@@ -174,6 +215,9 @@ New-PSAzureVMRDP -ResourceGroupName $resourceGroup `
 # Run the RDP to connect to the new VM
 # When the connection pops up, be sure to use "More Choices"
 # Enter the user name and password specified in the
-# variables.
+# variables. Before running though we need to give it a bit
+# got get fully started, hence the Sleep cmdlet. Once it
+# is up, you won't need sleep anymore.
+Start-Sleep -Seconds 60
 Invoke-Item $rdpFile
 
