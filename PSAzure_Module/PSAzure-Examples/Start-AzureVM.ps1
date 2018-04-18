@@ -26,7 +26,7 @@
 -----------------------------------------------------------------------------#>
 
 # Path to demos - Set this to where you want to store your code
-$dir = "$($env:OneDrive)\Pluralsight\PSAzure-Module\PSAzure-Examples"
+$dir = "C:\PowerShell\PSAzure-Module\PSAzure-Examples"
 Set-Location $dir
 
 # Load our module, or force a reload in case it's already loaded
@@ -37,7 +37,7 @@ Import-Module PSAzure -Force
 # see if a profile context file (named, by default, ProfileContext.ctx)
 # exists. If so, it uses that info to make logging in easier.
 # See the script Create-ProfileContext.ps1 on how to create this file.
-Connect-PSToAzure -Path $dir
+Connect-PSToAzure
 
 # Variable Declaration
 $resourceGroup = 'AzurePSTestRG'

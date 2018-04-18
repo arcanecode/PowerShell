@@ -29,6 +29,11 @@
     As a final step the script creates an RDP file to login to your
     VM remotely, then launches it. 
 
+    VERBOSE - Almost all the calls to functions in PSAzure add the 
+              -Verbose switch. This is done for learning purposes. 
+              Should you adopt this to your own environment you will
+              likely want to remove these. 
+
   Notices
     This module is Copyright (c) 2017, 2018 Robert C. Cain. All rights
     reserved. The code herein is for demonstration purposes. No warranty
@@ -42,7 +47,7 @@
 -----------------------------------------------------------------------------#>
 
 # Path to demos - Set this to where you want to store your code
-$dir = "$($env:OneDrive)\Pluralsight\PSAzure-Module\PSAzure-Examples"
+$dir = "C:\PowerShell\PSAzure-Module\PSAzure-Examples"
 Set-Location $dir
 
 # Load our module, or force a reload in case it's already loaded
@@ -53,8 +58,10 @@ Import-Module PSAzure -Force
 # see if a profile context file (named, by default, ProfileContext.ctx)
 # exists. If so, it uses that info to make logging in easier.
 # See the script Create-ProfileContext.ps1 on how to create this file.
-Connect-PSToAzure -Path $dir
-
+# See the help for Connect-PSToAzure for a list of locations where it will
+# automatically look for the file, or pass in the location using the -Path
+# parameter.
+Connect-PSToAzure -Verbose
 
 #------------------------------------------------------------------------------
 # Set the foundation. 
@@ -71,7 +78,8 @@ $location = 'southcentralus'
 $storageAccount = 'azurepsteststorageacct'
 
 $isValid = Test-PSAzureValidStorageAccountName `
-               -StorageAccountName $storageAccount
+               -StorageAccountName $storageAccount `
+               -Verbose
 
 # The return value is an object with two properties, Valid and Reason.
 # For demonstration purposes we'll just display these here, in 
@@ -93,7 +101,8 @@ $isValid = Test-PSAzureValidStorageAccountName `
 # check to see if the storage account name you want to use has been
 # taken already. Returns true if the name is available
 $saAvailable = Test-PSStorageAccountNameAvailability `
-                   -StorageAccountName $storageAccount
+                   -StorageAccountName $storageAccount `
+                   -Verbose
 Write-Host "Is the name available? $saAvailable"
 
 # You can test to see if the storage account already exists in your
@@ -110,7 +119,9 @@ Write-Host "Does the account already exist in our environment? $saExists"
 # an invalid name.
 
 # Create a resource group for our test
-New-PSResourceGroup -ResourceGroupName $resourceGroup -Location $location
+New-PSResourceGroup -ResourceGroupName $resourceGroup `
+                    -Location $location `
+                    -Verbose
 
 # Create a storage account to keep the VM in
 New-PSStorageAccount -StorageAccountName $storageAccount `
@@ -202,10 +213,13 @@ New-PSAzureVM `
 
 # Get its current status, just to show it is running
 Get-PSAzureVMStatus -ResourceGroupName $resourceGroup `
-                    -VMName $vmName
+                    -VMName $vmName `
+                    -Verbose
 
 # Generate the file name for the RDP.
 # Create the RDP for the new VM and open it
+# (Note if the RDP already exists, it will be deleted
+#  then recreated.)
 $rdpFile = "$($dir)\$($vmName).rdp"
 New-PSAzureVMRDP -ResourceGroupName $resourceGroup `
                  -VMName $vmName `
