@@ -1,4 +1,38 @@
-﻿# This script assumes you have placed the module in a folder with
+﻿<#-----------------------------------------------------------------------------
+  Install-PSAzureModule
+  
+  Author: Robert C. Cain | @ArcaneCode | arcanecode@gmail.com
+          http://arcanecode.com
+ 
+  This script is Copyright (c) 2017 Robert C. Cain. All rights reserved.
+  The code herein is for demonstration purposes. No warranty or guarentee
+  is implied or expressly granted. 
+  This module may not be reproduced in whole or in part without the express
+  written consent of the author. 
+
+  Notes
+  This script can be used to deploy the PSAzure module to the users 
+  WindowsPowershell Modules folder. 
+-----------------------------------------------------------------------------#>
+
+# This script assumes you have created a folder on your C: drive named
+# PowerShell, i.e. C:\PowerShell.
+# It then assumes you have placed the PSAzure-Module folder within the
+# C:\PowerShell folder, and unzipped the contents into it. Thus you should
+# have a folder structure of:
+# C:\PowerShell
+# C:\PowerShell\PSAzure-Module
+# C:\PowerShell\PSAzure-Module\PSAzure
+# C:\PowerShell\PSAzure-Module\PSAzure-Deploy
+# C:\PowerShell\PSAzure-Module\PSAzure-Examples
+
+# If you want to change the root location of your PowerShell scripts,
+# change the $powershellScripts to match the root of your scripts folder.
+# It's important you retain the PSAzure-Module structure. 
+
+$powershellScripts = 'C:\PowerShell'
+
+# This script assumes you have placed the module in a folder with
 # the name in the $moduleFolder
 $moduleFolder = 'PSAzure-Module'
 
@@ -6,16 +40,12 @@ $moduleFolder = 'PSAzure-Module'
 # name containing the PSAzure module
 $moduleName = 'PSAzure'
 
-# The developer stored his work in OneDrive, there is a convienient
-# shortcut in PowerShell to get a users OneDrive folder. 
-$oneDrive = $env:OneDrive
-
-# Set this to the location where you have unzipped or placed the module
-# If not OneDrive, the set it to another folder, such as C:\MyPowerShellCode 
-# or whever you store your code
-$rootLocation = "$onedrive\Pluralsight\$moduleFolder"
+# Determine the location of the module. 
+# Example: C:\PowerShell\PSAzure-Module
+$rootLocation = "$powershellScripts\$moduleFolder"
 
 # This sets the location of the root folder
+# Example: C:\PowerShell\PSAzure-Module\PSAzure
 $filesLocation = "$rootLocation\$moduleName"
 
 # Save the current folder location
