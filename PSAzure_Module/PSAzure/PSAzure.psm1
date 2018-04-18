@@ -47,7 +47,9 @@
   Export-ModuleMember Test-PSHiveTable
 
 # PSAzure-Login
+  Export-ModuleMember Test-PSToAzure
   Export-ModuleMember Connect-PSToAzure
+  Export-ModuleMember Disconnect-PSToAzure
   Export-ModuleMember Set-PSSubscription
 
 # PSAzure-ResourceGroups

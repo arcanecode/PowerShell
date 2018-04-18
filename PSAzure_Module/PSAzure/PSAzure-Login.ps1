@@ -14,10 +14,69 @@
   on the internet, without the express written consent of the author. 
 
   This script contains the following functions:
+    Test-PSToAzure
     Connect-PSToAzure
+    Disconnect-PSToAzure
     Set-PSSubscription
 
 -----------------------------------------------------------------------------#>
+
+#region Test-PSToAzure
+<#---------------------------------------------------------------------------#>
+<# Test-PSToAzure                                                            #>
+<#---------------------------------------------------------------------------#>
+function Test-PSToAzure ()
+{
+<#
+  .SYNOPSIS
+  Checks to see if the current PowerShell session is connected to Azure. 
+  Returns true or false.
+  
+  .DESCRIPTION
+  Checks the current context. If the AccountName is null, we are not logged
+  in to Azure, and it will return false. Otherwise it returns true.
+
+  .INPUTS
+  None
+
+  .OUTPUTS
+  Boolean - $true if logged in, $false otherwise
+
+  .EXAMPLE
+  Test-PSToAzure 
+
+  .NOTES
+  Author: Robert C. Cain  @arcanecode
+  Website: http://arcanecode.me
+  Copyright (c) 2017 All rights reserved
+
+.LINK
+  http://arcanecode.me
+#>
+  [cmdletbinding()]
+  param ()
+
+  $fn = "Test-PSToAzure:"
+
+  Write-Verbose "$fn Testing for current context"
+  $currentContext = Get-AzureRMContext
+  $userName = $currentContext.Name
+  $account = $currentContext.Account
+
+  if ( $account -eq $null )
+  { 
+    Write-Verbose "$fn Not logged in, running under the $userName context"
+    $retVal = $false
+  }
+  else
+  {
+    Write-Verbose "$fn Logged in using name $userName and account $account"
+    $retVal = $true
+  }
+
+  return $retVal
+}
+#endregion Test-PSToAzure
 
 
 #region Connect-PSToAzure
@@ -32,26 +91,47 @@ function Connect-PSToAzure ()
   connected.
   
   .DESCRIPTION
-  If a path/file is passed in, will attempt to copy the contents to the
-  clipboard with the assumption it is your password. It will then call the
-  cmdlet to connect to Azure. You just key in your user ID, then can paste
-  in your password. 
+  This script will help automate the connection process. First, it checks to
+  see if your are already logged in. If so, it just skips the rest of the
+  process.
 
-  WARNING: Of course it is dangerous to leave your password laying around
-  in a text file. Be sure your machine is secure, or optionally omit the
-  file and just key it in each time. 
+  Next, it checks to see if the user passed in a path. If so, it will 
+  combine the path with the context file parameter, which can be passed in
+  or use the default of ProfileContext.ctx. It then tests to see if the
+  file exists. If so it will attempt to login using that context file.
+
+  If the user did not pass in a path, it then looks in the folder the
+  scripts are executing from for the context file. If found, it will
+  attempt to use it to login. 
+
+  Should no context file be found in either the path parameter or the 
+  current folder, it will check the folder the PSAzure module is in.
+  If found, it will try to load the context from there. 
+
+  If no context file is found in any of those locations, then it will
+  launch the manual login process.
+
+  If a context file is found, but the login fails, it will launch the
+  manual login. Write-Verbose statements will update the user to what
+  is going on, these will be useful should the login not perform as 
+  expected. 
 
   .PARAMETER Path
   The directory where your password file is stored
 
-  .PARAMETER PasswordFile
-  The file holding your password.
+  .PARAMETER ContextFile
+  The file holding your context. See the demo file Create-ProfileContext.ps1
+  in the PSAzure-Examples folder of this project for an example of how to
+  create a profile context.  
 
   .INPUTS
   System.String
 
   .OUTPUTS
-  System.String
+  None
+
+  .EXAMPLE
+  Connect-PSToAzure 
 
   .EXAMPLE
   Connect-PSToAzure 'C:\Test'
@@ -60,7 +140,10 @@ function Connect-PSToAzure ()
   Connect-PSToAzure -Path 'C:\Test'
 
   .EXAMPLE
-  Connect-PSToAzure -Path 'C:\Test' -PasswordFile 'mypw.txt'
+  Connect-PSToAzure -Path 'C:\Test' -ContextFile "MyContext.ctx"
+
+  .EXAMPLE
+  Connect-PSToAzure -ContextFile "MyContext.ctx"
 
   .NOTES
   Author: Robert C. Cain  @arcanecode
@@ -77,43 +160,146 @@ function Connect-PSToAzure ()
        )
 
   $fn = 'Connect-PSToAzure:'
+  Write-Verbose "$fn Checking to see login status"
 
   # Login if we need to
-  if ( $(Get-AzureRmContext).Account -eq $null )
+  if ( $(Test-PSToAzure) -eq $false )
   {
-    # Copy your password to the clipboard
+    # Set a default
+    $contextPathFile = $null
+
+    # See if they passed in a path, then test for existance
     if ($Path -ne $null)
     {
       $contextPathFile = "$Path\$ContextFile"
-      Write-Verbose "$fn Context File: $contextPathFile"
-      if ($(Test-Path $contextPathFile))
-      {
-        # Old method I copied my PW to the clipboard
-        # Set-Clipboard $(Get-Content $pwPathFile )
-
-        # With AzureRM 4.4 update they fixed Import-AzureRmContext, so am
-        # going back to that method
-        try 
-        {
-          Import-AzureRmContext -Path $contextPathFile
-        }
-        catch
-        {
-          # Don't sweat an error if the file is gone, so just begin 
-          # the manual login process
-          Add-AzureRMAccount  # Login
-        }
+      Write-Verbose "$fn Checking using the path parameter for $contextPathFile"
+      # If not there, reset the contextPathFile
+      if ($(Test-Path $contextPathFile) -eq $false)
+      { 
+        Write-Verbose "$fn Context file $contextPathFile not found"
+        $contextPathFile = $null 
       }
-      else
-      {
-        # Begin the manual login process
-        Add-AzureRMAccount  # Login
+    }
+    
+    # If the context file is still null, check the
+    # current folder
+    if ($contextPathFile -eq $null)
+    {
+      $currentFolder = (Get-Item -Path ".\").FullName
+      $contextPathFile = "$currentFolder\$ContextFile"
+      Write-Verbose "$fn Checking the script execution folder for $contextPathFile"
+      # If not there, reset the contextPathFile
+      if ($(Test-Path $contextPathFile) -eq $false)
+      { 
+        Write-Verbose "$fn Context file $contextPathFile not found in script execution folder"
+        $contextPathFile = $null 
       }
-    }    
-  }
+    }
+    
+    # Finally if the context file is still not found,
+    # try the modules folder
+    if ($contextPathFile -eq $null)
+    {
+      $psUserModulePath = "C:\Users\$([Environment]::UserName)\Documents\WindowsPowerShell\Modules\PSAzure"
+      $contextPathFile = "$psUserModulePath\$ContextFile"
+      Write-Verbose "$fn Checking the module folder for $contextPathFile"
+      # If not there, reset the contextPathFile
+      if ($(Test-Path $contextPathFile) -eq $false)
+      { 
+        Write-Verbose "$fn Context file $contextPathFile not found in module folder"
+        $contextPathFile = $null 
+      }
+    }
+      
+    # If the context path file is not null, then it exists.
+    # Attempt to use it to login
+    if ($contextPathFile -ne $null)
+    {
+      Write-Verbose "Attempting to login using context file $contextPathFile"
+      # Attempt to login using the context file
+      try 
+      {
+        Import-AzureRmContext -Path $contextPathFile
+        Write-Verbose "$fn Login successful!"
+      }
+      catch
+      {
+        # If there was an error logging in with the context file,
+        # login using the manual login process
+        Write-Verbose "$fn Login failed using context file $contextPathFile, attempting manual login"
+        Connect-AzureRmAccount  
+      }
+    }
+    else # No context file found, just login manually
+    {
+      # Begin the manual login process
+      Write-Verbose "$fn No context file was found. Logging into Azure Manually."
+      Connect-AzureRmAccount 
+    } # if ($contextPathFile -ne $null)   
+  } # if ( $(Get-AzureRmContext).Account -eq $null )
 
 }
 #endregion Connect-PSToAzure
+
+#region Disconnect-PSToAzure
+<#---------------------------------------------------------------------------#>
+<# Disconnect-PSToAzure                                                      #>
+<#---------------------------------------------------------------------------#>
+function Disconnect-PSToAzure ()
+{
+<#
+  .SYNOPSIS
+  If to current PowerShell session is connected to Azure, it will disconnect
+  the session.
+  
+  .DESCRIPTION
+  Will logout of the current Azure session, returning to the "Default"
+  context. 
+
+  .INPUTS
+  None
+
+  .OUTPUTS
+  None
+
+  .EXAMPLE
+  Disconnect-PSToAzure 
+
+  .NOTES
+  Author: Robert C. Cain  @arcanecode
+  Website: http://arcanecode.me
+  Copyright (c) 2017 All rights reserved
+
+.LINK
+  http://arcanecode.me
+#>
+  [cmdletbinding()]
+  param ()
+
+  $fn = "Disconnect-PSToAzure:"
+  
+  Write-Verbose "$fn Seeing if we need to logout of Azure"
+
+  if ( $(Test-PSToAzure) -eq $true )
+  {
+    $currentContext = Get-AzureRMContext
+    $userName = $currentContext.Name
+    Write-Verbose "$fn Logging out as user $userName"
+
+    Remove-AzureRmContext -Name $userName -Force
+
+    if ( $(Test-PSToAzure) -eq $false )
+    {
+      Write-Verbose "$fn Now logged out as user $userName"
+    }
+  }
+  else
+  {
+    Write-Verbose "$fn Not currently logged into Azure"
+  }
+
+}
+#endregion Disconnect-PSToAzure
 
 #region Set-PSSubscription
 <#---------------------------------------------------------------------------#>
