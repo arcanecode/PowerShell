@@ -97,10 +97,10 @@ $serverInstance = $env:COMPUTERNAME  # Use default instance
 $folderName = 'WWI'
 $projectName = 'wwi-ssis'
 $packageName = 'DailyETLMain.dtsx'
-$startDate = '04/15/2018'
-$startTime = '00:15:00'
-$endDate = '04/15/2018'
-$endTime = '00:59:59'
+$startDate = '05/17/2018'
+$startTime = '12:15:00'
+$endDate = '05/18/2018'
+$endTime = '10:19:59'
 
 # Now generate package runs
 Invoke-ACSimulatedPackageExecution -ServerInstance $serverInstance `
@@ -111,8 +111,8 @@ Invoke-ACSimulatedPackageExecution -ServerInstance $serverInstance `
                                    -StartTime $startTime `
                                    -EndDate $endDate `
                                    -EndTime $endTime `
-                                   -IncrementUnit 'm' `
-                                   -IncrementAmount 10 `
+                                   -IncrementUnit 'h' `
+                                   -IncrementAmount 1 `
                                    -Verbose
 
 # Show the results

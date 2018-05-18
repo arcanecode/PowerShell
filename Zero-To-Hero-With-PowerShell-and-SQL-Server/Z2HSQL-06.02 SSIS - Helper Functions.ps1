@@ -391,7 +391,7 @@ function Invoke-ACSimulatedPackageExecution ()
     switch ($IncrementUnit)
     {
       'd' { $runDateTime = $runDateTime.AddDays($IncrementAmount); break }
-      'h' { $runDateTime = $runDateTime.Hours($IncrementAmount); break }
+      'h' { $runDateTime = $runDateTime.AddHours($IncrementAmount); break }
       'm' { $runDateTime = $runDateTime.AddMinutes($IncrementAmount); break }   
       default { $runDateTime = $runDateTime.AddMinutes(15); break }
     }
