@@ -28,7 +28,8 @@
 -----------------------------------------------------------------------------#>
 
 # Path to demos - Set this to where you want to store your code
-$dir = "C:\PowerShell\PSAzure-Module\PSAzure-Examples"
+#$dir = "C:\PowerShell\PSAzure-Module\PSAzure-Examples"
+$dir = "$($env:ONEDRIVE)\Pluralsight\PSAzure-Module\PSAzure-Examples"
 Set-Location $dir
 
 # Load our module, or force a reload in case it's already loaded
