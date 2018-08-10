@@ -20,6 +20,11 @@
 # i.e. running PowerShell on. 
 #-----------------------------------------------------------------------------#
 
+# Configure WinRM, allow it to make any changes. 
+# (Note, sometimes I've had problems in PowerShell so you might want to
+#  open a CMD window in Admin mode and run the following command).
+winrm quickconfig
+
 # First, you will need to enable remoting on the computer you want to control
 # On the remote computer, enter the command below. (-Force will run without
 # prompts)
@@ -32,7 +37,7 @@ Enable-PSRemoting -Force
 
 Set-Item wsman:\localhost\client\trustedhosts *
 
-# Instead of an *, you could specify the IP Addresses of the machines. 
+# Instead of an *, you should specify the IP Addresses of the machines. 
 
 # You will then need to restart the windows remote management service
 # on both computers.
@@ -42,17 +47,32 @@ Restart-Service WinRM
 # followed by the name of the remote computer. 
 Test-WSMan ACSrv
 
+# Setup credential for ACSrv
+$credACSrv = Get-Credential -UserName ArcaneCode -Message 'Enter the password'
+
 # Now execute a command on the remote system
 Invoke-Command -ComputerName ACSrv `
                -ScriptBlock { Get-ChildItem C:\ } `
-               -Credential ArcaneCode
+               -Credential $credACSrv
 
 
 # You can also open up a PowerShell window which will execute
 # on the remote computer
-Enter-PSSession -ComputerName ACSrv -Credential ArcaneCode
+Enter-PSSession -ComputerName ACSrv -Credential $credACSrv
+
+# Try on a different machine
+# Setup credential for ACDev
+$credACDev = Get-Credential -UserName arcanecode@gmail.com -Message 'Enter password'
+
+# Now execute a command on the remote system
+Invoke-Command -ComputerName ACDev `
+               -ScriptBlock { Get-ChildItem C:\ } `
+               -Credential $credACDev
 
 
+# You can also open up a PowerShell window which will execute
+# on the remote computer
+Enter-PSSession -ComputerName ACDev -Credential $credACDev
 
 
 #-----------------------------------------------------------------------------#
