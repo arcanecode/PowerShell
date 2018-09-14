@@ -14,4 +14,6 @@ The code herein is for demonstration purposes. No warranty or guarentee is impli
    
 This code may not be reproduced in whole or in part without the express written consent of the author. Your are free to repurpose it for your projects, with no warranty or guarentees provided.
 
+---
 
+For more information, please visit [ArcaneCode.me](http://arcanecode.me)
