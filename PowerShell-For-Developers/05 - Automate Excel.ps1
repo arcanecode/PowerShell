@@ -16,18 +16,22 @@
   This code may not be reproduced in whole or in part without the express
   written consent of the author. Your are free to repurpose it for your
   projects, with no warranty or guarentees provided.
+
+  Works with PowerShell 5.1 for Windows.
+  Not compatible with PowerShell Core due to Office using ComObjects
 -----------------------------------------------------------------------------#>
 
 # This keeps me from running the whole script in case I accidentally hit F5
 if (1 -eq 1) { exit } 
 
-# Set a reference to the local execution folder
-$dir = "C:\PowerShell\PS-For-Devs"
+# Set a reference to the local execution folder on Windows
+$dir = "C:\PowerShell\PS-For-Devs\"
+
 Set-Location $dir
 
 # Set our file names
-$csvFile = "$dir\CustData.csv"
-$xlsxFile = "$dir\CustData.xlsx"
+$csvFile = "$($dir)CustData.csv"
+$xlsxFile = "$($dir)CustData.xlsx"
 
 # Remove the Excel file if it was leftover from a previous run,
 # but don't error out if it does not exist

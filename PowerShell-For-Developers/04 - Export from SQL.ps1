@@ -16,6 +16,8 @@
   This code may not be reproduced in whole or in part without the express
   written consent of the author. Your are free to repurpose it for your
   projects, with no warranty or guarentees provided.
+
+  This module has not yet been tested with PowerShell 6.1/Core
 -----------------------------------------------------------------------------#>
 
 # This keeps me from running the whole script in case I accidentally hit F5

@@ -13,12 +13,21 @@
   This code may not be reproduced in whole or in part without the express
   written consent of the author. Your are free to repurpose it for your
   projects, with no warranty or guarentees provided.
+
+  This sample is compatible with PowerShell 5.1, PowerShell 6.1 / Core
 -----------------------------------------------------------------------------#>
 
 # This keeps me from running the whole script in case I accidentally hit F5
 if (1 -eq 1) { exit } 
 
-$dir = 'C:\PowerShell\PS-For-Devs'
+# Set a reference to the local execution folder on Windows
+$dirWin = "C:\PowerShell\PS-For-Devs\"
+
+# Mac dir (uses my OneDrive)
+$dirMac = "/Users/arcanecode/OneDrive/PS/C-PowerShell/PS-For-Devs/"
+
+$dir = $dirWin
+Set-Location $dir
 
 #-----------------------------------------------------------------------------#
 # Retrieve data from the No Agenda podcast feed
@@ -51,7 +60,7 @@ $zipCode = '35051'
 # For demos I didn't want to expose my personal key. Thus it has been stored
 # in a text file (that isn't included in the downloads). Here the key is
 # read in from the file and stored in a variable.
-$zipIdFile = "$dir\ZipId.txt"
+$zipIdFile = "$($dir)ZipId.txt"
 $zipId = Get-Content -Raw $zipIdFile
 
 # Format the base for our API call

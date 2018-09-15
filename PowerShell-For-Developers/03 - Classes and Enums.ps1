@@ -83,7 +83,7 @@ $twit.TwitterHandle
 $twit.Name
 
 # Override default value
-$twit.Name = 'Mrs. Code'
+$twit.Name = 'N4IXT'
 $twit.Name
 
 $myTwitter = $twit.TwitterURL()

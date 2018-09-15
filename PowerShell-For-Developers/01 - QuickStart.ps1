@@ -14,14 +14,28 @@
   This code may not be reproduced in whole or in part without the express
   written consent of the author. Your are free to repurpose it for your
   projects, with no warranty or guarentees provided.
+
+  All code is PowerShell 5.1 compatible.
+
+  The majority of this code is PowerShell 6.1/Core compatible. The
+  exceptions have been noted within the code. 
 -----------------------------------------------------------------------------#>
 
 # This keeps me from running the whole script in case I accidentally hit F5
 if (1 -eq 1) { exit } 
 
+# Set the folder where the CS file is
+$winPath = 'C:\PowerShell\PS-For-Devs\'
+
+# For Mac
+$macPath = '/Users/arcanecode/OneDrive/PS/C-PowerShell/PS-For-Devs/'
+
+# Set the $dir variable to whichever OS you are on
+$dir = $winPath
+
 # Comments begin with a # (aka hashtag or pound sign)
 
-cd C:\Users\Arcane\OneDrive\PS\Z2H
+cd $dir
 dir # same as ls
 
 <#
@@ -52,7 +66,7 @@ Get-Help Get-Command -full
 
 # Some popular cmdlets
 Get-Process
-Get-ScheduledTask
+Get-ScheduledTask                                      # Not PSCore Compatible
 Get-ChildItem
 
 #-----------------------------------------------------------------------------#
@@ -84,7 +98,9 @@ Get-Alias
 #-----------------------------------------------------------------------------#
 # Cmdlet Pipelining 
 #-----------------------------------------------------------------------------#
-Set-Location C:\users\Arcane\OneDrive\ps\Z2H
+
+Set-Location $dir
+
 Get-ChildItem | Where-Object { $_.Length -gt 10kb } 
 
 Get-ChildItem | Where-Object { $_.Length -gt 10kb } | Sort-Object Length
@@ -110,7 +126,8 @@ Clear-Host
 Set-Location env:
 Get-ChildItem
 
-Set-Location C:\users\Arcane\OneDrive\ps\Z2H
+# Go back to the demo location
+Set-Location $dir
 
 #-----------------------------------------------------------------------------#
 # Variables
@@ -256,7 +273,10 @@ SELECT col1
 '@
 
 # String Interpolation ---------------------------------------------------------------------------------------------------
-Set-Location C:\Users\Arcane\OneDrive\PS\Z2H
+
+# Set the location
+Set-Location $dir
+
 Clear-Host
 
 # Take the output of Get-ChildItem, which is an object, and gets that objects count property
@@ -367,7 +387,7 @@ $returnValue = Get-AValue -one 11 -two 13
 #-----------------------------------------------------------------------------#
 # Something useful
 #-----------------------------------------------------------------------------#
-# Restart Services
+# Restart Services (Not PowerShell 6.1/Core Compatible)
 Get-Service | Where-Object Status -eq 'Stopped' # | Start-Service
 
 

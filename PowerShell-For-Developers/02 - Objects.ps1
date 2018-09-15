@@ -18,6 +18,15 @@
 # This keeps me from running the whole script in case I accidentally hit F5
 if (1 -eq 1) { exit } 
 
+# Set the folder where the CS file is
+$winPath = 'C:\PowerShell\PS-For-Devs\'
+
+# For Mac
+$macPath = '/Users/arcanecode/OneDrive/PS/C-PowerShell/PS-For-Devs/'
+
+# Set the $dir variable to whichever OS you are on
+$dir = $winPath
+
 #-----------------------------------------------------------------------------#
 # Demo 0 -- Object Oriented Terminology
 #-----------------------------------------------------------------------------#
@@ -210,6 +219,8 @@ $myObject.Author = 'ArcaneCode'
 # Demo 6 -- Set default properties
 # Note: Thanks to Poshoholic for his cool code sample, see it at:
 # http://poshoholic.com/2008/07/05/essential-powershell-define-default-properties-for-custom-objects/
+# Note, this section (specifically Get-WmiObject) is not PowerShell 6.1/Core 
+# compatible. 
 #-----------------------------------------------------------------------------#
 Clear-Host
 
@@ -339,13 +350,10 @@ $result.composeFullName($mySchema, $myTable)
 # Demo 9 - Create object from .Net Code in an external file
 #-----------------------------------------------------------------------------#
 
-# Set the folder where the CS file is
-$assyPath = 'C:\PowerShell\PS-For-Devs'
-
 # Path and File Name
-$file = "$($assyPath)\02 - Objects Code.cs"
+$file = "$($dir)02 - Objects Code.cs"
 
-# Display contents of the file
+# Display contents of the file (only works running in the PowerShell ISE)
 psedit $file
 
 # Load the contents of the file into a variable
@@ -365,7 +373,7 @@ $result
 #-----------------------------------------------------------------------------#
 # Demo 10 - Add to an existing object
 #-----------------------------------------------------------------------------#
-Set-Location C:\PowerShell\PS-For-Devs
+Set-Location $dir
 
 $items = Get-ChildItem
 
