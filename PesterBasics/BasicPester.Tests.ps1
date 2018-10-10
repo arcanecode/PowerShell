@@ -1,25 +1,4 @@
-﻿# Sample - Basic Pester Test
-<#
-Describe 'Basic Pester Tests' {
-  It 'A test that should be true' {
-    $true | Should -Be $true
-  }
-}
-#>
-
-
-<#
-Describe 'Basic Pester Tests' {
-  It 'A test that should be true' {
-    $true | Should -Be $true
-  }
-
-  It 'A test that should fail' {
-    $fail | Should -Be $true
-  }
-}
-#>
-<#-----------------------------------------------------------------------------
+﻿<#-----------------------------------------------------------------------------
   PowerShell Testing with Pester
 
   This sample code is part of a series of articles entitled 
@@ -45,27 +24,40 @@ Describe 'Basic Pester Tests' {
   section can be found in the article referenced above. 
 -----------------------------------------------------------------------------#>
 
+# Sample - Basic Pester Test
+Describe 'Basic Pester Tests' {
+  It 'A test that should be true' {
+    $true | Should -Be $true
+  }
+}
+
+
+Describe 'Basic Pester Tests' {
+  It 'A test that should be true' {
+    $true | Should -BeTrue
+  }
+
+  It 'A test that should fail' {
+    $false | Should -Be $true  # or -BeFalse
+  }
+}
+
 
 # Sample - Should Exist
-<#
 Describe 'should exist test' {
   It 'Should exist' {
     'C:\PowerShell\Pester-Demo\Invoke-BasicPesterTests.ps1' |
       Should -Exist
   }
 }
-#>
 
 # Sample - Should Exist using variables
-<#
-# Sample - Should Exist with Variables
 Describe 'should exist with variables test' {
     $someFile = 'C:\PowerShell\Pester-Demo\Invoke-BasicPesterTests.ps1'
     It "$someFile should exist" {
-      $someFile | Should Exist
+      $someFile | Should -Exist
     }
 }
-#>
 
 # Sample - Context
 Describe 'Grouping using Context' {
