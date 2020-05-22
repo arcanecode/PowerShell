@@ -23,7 +23,7 @@ function Add-WindowsPowerShellFolder()
 
 #-----------------------------------------------------------------------------#
 # This checks to see if the folder for the Module you want to install 
-# exists, and if not it adds it. 
+# exists, and if not it adds it.....
 # This is primarily a helper function for the Install-MyModule function
 #-----------------------------------------------------------------------------#
 function Add-ModuleFolder($ModuleName)
